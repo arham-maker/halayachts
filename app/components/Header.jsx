@@ -5,10 +5,32 @@ import { FiMenu, FiX, FiArrowRight } from 'react-icons/fi';
 import { motion, AnimatePresence } from 'framer-motion';
 import ContactForm from './ContactForm'; // Adjust the path as needed
 
+// Custom hook for scroll lock
+const useScrollLock = (isLocked) => {
+  useEffect(() => {
+    if (isLocked) {
+      const scrollbarWidth = window.innerWidth - document.documentElement.clientWidth;
+      document.body.style.paddingRight = `${scrollbarWidth}px`;
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.paddingRight = '';
+      document.body.style.overflow = 'unset';
+    }
+
+    return () => {
+      document.body.style.paddingRight = '';
+      document.body.style.overflow = 'unset';
+    };
+  }, [isLocked]);
+};
+
 const Header = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
   const [isContactOpen, setIsContactOpen] = useState(false);
+
+  // Use scroll lock hook for mobile menu
+  useScrollLock(isMenuOpen);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -112,6 +134,14 @@ const Header = () => {
     setIsMenuOpen(false);
   };
 
+  const handleMenuToggle = () => {
+    setIsMenuOpen(!isMenuOpen);
+  };
+
+  const handleMenuClose = () => {
+    setIsMenuOpen(false);
+  };
+
   return (
     <>
       <AnimatePresence>
@@ -157,8 +187,9 @@ const Header = () => {
 
               <div className="flex items-center gap-4 md:hidden">
                 <button
-                  onClick={() => setIsMenuOpen(!isMenuOpen)}
+                  onClick={handleMenuToggle}
                   className="text-white hover:text-gray-300 transition duration-300 z-60"
+                  aria-label={isMenuOpen ? "Close menu" : "Open menu"}
                 >
                   {isMenuOpen ? <FiX size={24} /> : <FiMenu size={24} />}
                 </button>
@@ -175,7 +206,7 @@ const Header = () => {
                   animate="open"
                   exit="closed"
                   variants={overlayVariants}
-                  onClick={() => setIsMenuOpen(false)}
+                  onClick={handleMenuClose}
                 />
 
                 {/* Menu Panel */}
@@ -200,7 +231,7 @@ const Header = () => {
                           <Link
                             href={item.href}
                             className="text-white hover:text-gray-300 transition duration-300 font-light tracking-wider text-base py-3 border-b border-gray-700 flex items-center justify-between group"
-                            onClick={() => setIsMenuOpen(false)}
+                            onClick={handleMenuClose}
                           >
                             <span>{item.name}</span>
                             <FiArrowRight className="text-gray-400 group-hover:text-white transition duration-300" size={16} />
