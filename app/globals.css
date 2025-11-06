@@ -1,0 +1,78 @@
+@import "tailwindcss";
+
+@font-face {
+  font-family: "Neue Haas Grotesk";
+  src: url("/fonts/neuehaasgrotdispround-45light-trial.otf") format("opentype");
+  font-weight: 300;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Neue Haas Grotesk";
+  src: url("/fonts/neuehaasgrotdispround-65medium-trial.otf") format("opentype");
+  font-weight: 500;
+  font-style: normal;
+  font-display: swap;
+}
+
+body {
+  font-family: "Neue Haas Grotesk", sans-serif;
+  font-weight: 300;
+  background-color: var(--background-color);
+}
+
+.opacity-black {
+  background-color: #000;
+  opacity: 0.3;
+}
+
+:root {
+  --font-neue-haas: "Neue Haas Grotesk", sans-serif;
+  --primary: #c8a75c;
+  --secondary: #542c69;
+  --background-color: #f2f2f2;
+  --secondary-opactiy: #542c6915;
+}
+
+.text-primary {
+  color: var(--primary);
+}
+
+.bg-text-secondary-50 {
+  background-color: var(--secondary-opactiy);
+}
+
+.text-secondary {
+  color: var(--secondary);
+}
+
+.bg-text-primary {
+  background-color: var(--primary);
+}
+
+.bg-text-secondary {
+  background-color: var(--secondary);
+}
+
+main {
+  padding-top: 0;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  margin: 0;
+  padding: 0;
+}
+.custom-toast-width {
+  width: max-content;
+  font-size: 16px;
+}
