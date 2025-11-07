@@ -15,6 +15,7 @@ import {
   TwitterIcon,
   WhatsappIcon,
 } from 'react-share';
+import BookingForm from './BookingForm';
 
 const CONTENT = {
   heading: {
@@ -25,7 +26,8 @@ const CONTENT = {
   note: "All particulars are given in good faith, however exact accuracy is not guaranteed.",
   shareButton: "Share",
   downloadBrochure: "Download Brochure",
-  downloading: "Downloading..."
+  downloading: "Downloading...",
+  bookNow: "Book Now"
 };
 
 const STYLES = {
@@ -54,7 +56,8 @@ const STYLES = {
   shareGrid: "grid grid-cols-3 gap-2",
   shareOption: "flex flex-col items-center gap-1 p-2 hover:bg-gray-50 rounded transition-colors cursor-pointer",
   shareLabel: "text-xs text-gray-600 mt-1",
-  copyNotification: "fixed top-4 right-4 bg-green-500 text-white px-4 py-2 rounded-lg shadow-lg z-50 transition-opacity duration-300"
+  copyNotification: "fixed top-4 right-4 bg-green-500 text-white px-4 py-2 rounded-lg shadow-lg z-50 transition-opacity duration-300",
+  bookButton: "bg-text-primary text-white text-base p-3 lg:w-2xs w-full md:text-base font-light tracking-wider rounded cursor-pointer hover:bg-opacity-90 transition duration-300 "
 };
 
 const formatPrice = (cents, currency) => {
@@ -72,11 +75,18 @@ export default function FeaturesSection({
   note = CONTENT.note,
   shareButton = CONTENT.shareButton,
   downloadBrochure = CONTENT.downloadBrochure,
-  downloading = CONTENT.downloading
+  downloading = CONTENT.downloading,
+  bookNow = CONTENT.bookNow,
+  charterLocation = "",
+  charterDurations = [],
+  maxPassengers = 10,
+  title = ""       
 }) {
   const [showShareOptions, setShowShareOptions] = useState(false);
   const [showCopyNotification, setShowCopyNotification] = useState(false);
   const [isDownloading, setIsDownloading] = useState(false);
+  const [showBookingForm, setShowBookingForm] = useState(false);
+
   const hasPrices = prices?.length > 0;
   const hasBrochure = brochure && brochure.file_path;
 
@@ -152,26 +162,27 @@ export default function FeaturesSection({
   const handleDownloadBrochure = async () => {
     if (hasBrochure && !isDownloading) {
       setIsDownloading(true);
-
       try {
         await new Promise(resolve => setTimeout(resolve, 500));
-
         const link = document.createElement('a');
         link.href = brochure.file_path;
         link.download = brochure.file_name || 'brochure.pdf';
         document.body.appendChild(link);
         link.click();
         document.body.removeChild(link);
-
-        setTimeout(() => {
-          setIsDownloading(false);
-        }, 500);
-
+        setTimeout(() => setIsDownloading(false), 500);
       } catch (error) {
         console.error('Download failed:', error);
         setIsDownloading(false);
       }
     }
+  };
+
+  const bookingData = {
+    location: charterLocation,
+    durations: charterDurations,
+    maxPassengers: maxPassengers,
+    yachtTitle: title
   };
 
   return (
@@ -243,13 +254,13 @@ export default function FeaturesSection({
                           <span className={STYLES.shareLabel}>Copy Link</span>
                         </div>
 
-                        {shareOptions.map((option, index) => {
+                        {shareOptions.map((option) => {
                           const ShareButton = option.component;
                           const ShareIcon = option.icon;
 
                           return (
                             <ShareButton
-                              key={index}
+                              key={option.name}
                               {...option.props}
                               className={STYLES.shareOption}
                               onClick={() => setShowShareOptions(false)}
@@ -263,6 +274,7 @@ export default function FeaturesSection({
                     </div>
                   )}
                 </div>
+
                 {hasBrochure && (
                   <button
                     className={isDownloading ? STYLES.downloadButtonDisabled : STYLES.downloadButton}
@@ -284,6 +296,13 @@ export default function FeaturesSection({
                     )}
                   </button>
                 )}
+
+                <button
+                  className={STYLES.bookButton}
+                  onClick={() => setShowBookingForm(true)}
+                >
+                  {bookNow}
+                </button>
               </div>
             </div>
           )}
@@ -295,6 +314,12 @@ export default function FeaturesSection({
           )}
         </div>
       </div>
+
+      <BookingForm
+        isOpen={showBookingForm}
+        onClose={() => setShowBookingForm(false)}
+        charterData={bookingData}
+      />
     </section>
   );
 }

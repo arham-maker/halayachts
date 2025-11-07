@@ -62,6 +62,18 @@ export default function YachtDetailPage({ params }) {
   if (loading) return <LoadingSpinner />;
   if (!yacht) return <YachtError slug={slug} />;
 
+  // Charter data prepare karna yacht data se - JSON structure ke according
+  const charterData = {
+    charterLocation:
+      yacht?.location?.city ||
+      yacht?.location?.name ||
+      "Location not specified",
+    charterDurations: yacht?.prices?.map(
+      (price) => `${price.charter_hours} ${price.charter_hours_label}`
+    ) || ["4 hrs", "6 hrs"],
+    maxPassengers: yacht?.guests || 6,
+  };
+
   return (
     <div className="min-h-screen">
       <Banner
@@ -72,10 +84,15 @@ export default function YachtDetailPage({ params }) {
         overlayOpacity={0.6}
       />
 
+      {/* FeaturesSection with Booking Feature */}
       <FeaturesSection
         featuresInfo={yacht.features_and_availablity_info}
         prices={yacht.prices}
         brochure={yacht.brochure}
+        charterLocation={charterData.charterLocation}
+        charterDurations={charterData.charterDurations}
+        maxPassengers={charterData.maxPassengers}
+        title={yacht.title}
       />
 
       <GallerySection
