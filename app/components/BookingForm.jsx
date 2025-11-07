@@ -14,7 +14,7 @@ import { GoPeople } from 'react-icons/go';
 
 const STYLES = {
   overlay: "fixed inset-0 z-50 flex justify-end ",
-  modal: "bg-white w-full max-w-md h-[95vh] mt-4 sm:mr-4 rounded-xl shadow-2xl overflow-hidden",
+  modal: "bg-white w-full max-w-md h-[95vh] sm:mt-4 sm:mr-4 rounded-xl shadow-2xl overflow-hidden",
   header: "bg-white p-5 border-b border-gray-100 sticky top-0 z-10 flex flex-col gap-1",
   heading: "text-3xl font-light tracking-wider",
   subheading: "text-sm md:text-base lg:text-lg tracking-wider font-light",
@@ -26,8 +26,8 @@ const STYLES = {
   radioInput: "w-3 h-3 text-[#542c69] border-2 border-gray-300 rounded-full focus:ring-[#542c69]",
   radioText: "text-lg font-light tracking-wider",
   formGroup: "flex flex-col gap-2 mb-5",
-  formGroupRow: "flex gap-4 mb-5", // 🆕 Row style for side-by-side
-  formGroupItem: "flex-1 flex flex-col gap-2", // 🆕 Individual item in row
+  formGroupRow: "flex gap-4 mb-5",  
+  formGroupItem: "flex-1 flex flex-col gap-2",  
   label: "flex gap-1 items-center text-base font-light tracking-wider",
   input: "w-full px-4 py-3 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 ",
   inputLocked: "w-full px-4 py-3 border border-gray-200 rounded-lg bg-gray-50 cursor-not-allowed text-gray-600 text-base font-light tracking-wider",
@@ -49,7 +49,6 @@ const STYLES = {
   checkboxSelected: "border-blue-500 bg-blue-50 shadow-md ",
   checkboxText: "flex flex-col items-center",
   checkboxDuration: "text-base font-light tracking-wider",
-  // Calendar custom styles
   calendarContainer: "mt-2 border border-gray-200 rounded-lg overflow-hidden",
   calendar: "w-full border-0",
   calendarTile: "rounded-lg hover:bg-blue-100",
@@ -111,6 +110,7 @@ const calendarStyles = `
     border: none !important;
     width: 100% !important;
     font-family: inherit !important;
+    font-size:16px !important;
   }
   
   .react-calendar__tile--active {
