@@ -13,7 +13,7 @@ const WhyHalaYachts = ({
   leftColumnHeading = "Unmatched Fleet",
   leftColumnText1 = "Our yachts are hand-selected for their craftsmanship, design, and performance, each maintained to the highest standards of luxury and reliability.",
   leftColumnText2 = "From sleek modern superyachts to timeless classics, every vessel offers a perfect balance of elegance, comfort, and cutting-edge innovation on the open sea.",
-  learnMoreLink = "/fleet",
+  learnMoreLink = "/charter",
   learnMoreText = "Learn more",
   features = [
     {
