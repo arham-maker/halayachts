@@ -9,7 +9,7 @@ const Community = () => {
   const slides = [
     {
       id: 1,
-      text: "The journey felt effortless, yet unforgettable. From the captain’s expertise to the crew’s warmth, every moment was beyond expectations.”",
+      text: "Every detail was perfection — from the captain’s precision to the crew’s warmth. It wasn’t just a journey; it was a memory crafted on the sea.”",
       image: "/images/client01.png",
       name: "Daniel Kennedy",
       location: "New York"
@@ -86,10 +86,10 @@ const Community = () => {
                 </h2>
 
                 {/* Mobile - Smaller Text */}
-                <p className="text-base md:text-lg lg:text-xl sm:max-w-5xl leading-relaxed font-light">
-                  Luxury told through experience.
+                <p className="text-base md:text-lg lg:text-xl sm:max-w-5xl leading-relaxed tracking-wider font-light">
+                  Luxury experienced, stories shared.
                   <br className="hidden sm:block" />
-                  These are the words of those who sailed with us.
+                 Hear from those who’ve experienced first-hand the art of effortless travel with Halayachts 
                 </p>
               </div>
             </motion.div>

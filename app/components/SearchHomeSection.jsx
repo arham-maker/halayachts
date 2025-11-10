@@ -32,8 +32,8 @@ function HomeSearchSectionLoader() {
 function HomeSearchSectionContent({
   heading = "2,000+ Yachts for Charter Worldwide",
   description = [
-    "Choose your destination and style.",
-    "We'll prepare a personalized yacht journey just for you."
+    "Choose your dream destination and signature style.",
+    " We’ll craft a bespoke yachting experience exclusively for you."
   ],
   showDivider = true,
   className = "",

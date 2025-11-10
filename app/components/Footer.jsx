@@ -9,9 +9,9 @@ const Footer = () => {
   const COMPANY_INFO = {
     name: "Hala Yachts",
     description: "HalaYachts delivers bespoke, luxury yacht charters across the globe. Every voyage is uniquely crafted for those who seek extraordinary experiences, not just travel.",
-    email: "charter@halayachts.com",
-    phone: "+1 (555) 987-6543",
-    address: "123 Oceanview Drive Miami, FL 33139, USA",
+    email: "info@halayachts.com",
+    phone: "+1 847-845-0227",
+    address: "673 NE 3rd Avenue Suite 432, Fort Lauderdale, FL 33304, USA.",
     copyright: "© 2025 HalaYachts. All rights reserved."
   };
 
@@ -24,10 +24,10 @@ const Footer = () => {
   ];
 
   const CHARTER_YACHTS = [
-    { name: "21' Cipelli", href: "/" },
-    { name: "65' Viking", href: "/" },
-    { name: "60' Pirlant", href: "/" },
-    { name: "Other", href: "/" }
+    // { name: "21' Cipelli", href: "/" },
+    // { name: "65' Viking", href: "/" },
+    // { name: "60' Pirlant", href: "/" },
+    { name: "Explore More", href: "/charter" }
   ];
 
   const LEGAL_LINKS = [

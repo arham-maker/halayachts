@@ -38,7 +38,7 @@ const HERO_CONTENT = {
   smallHeading: "Hala Yachts: Redefining Luxury on Water",
   mainHeading: "Exclusive Yacht Voyages",
   description:
-    "Luxury isn't a destination, it's the journey. With Hala Yachts, every voyage is crafted around you. From a refined day escape to an extended passage of discovery, experience the world's most exclusive yachts, curated with precision and effortless sophistication.",
+    "At Hala Yachts, we are driven to provide you with the best of luxury travel in yachting. Whether you seek a serene coastal escape or an extended voyage across the world’s most coveted waters, we craft experiences as limitless and refined as the sea itself.",
   cta: {
     showButton: true,
     buttonText: "Book Now",

@@ -7,7 +7,7 @@ import { FaSpinner } from 'react-icons/fa';
 
 const Newsletter = ({
   heading = "Subscribe to our Newsletter",
-  description = "Stay up to date on the latest additions to our fleet, location showcases, and more.",
+  description = "Be the first to discover new yacht arrivals, exclusive destinations, and luxury travel insights from Hala Yachts.",
   inputPlaceholder = "Enter your email address here...",
   buttonText = "Join now",
   loadingText = "Subscribing...",
