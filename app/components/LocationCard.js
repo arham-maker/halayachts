@@ -75,7 +75,7 @@ const LocationCard = ({
               <span className="text-base text-secondary text-wider font-semibold">
                 {learnMoreText}
               </span>
-              <BsArrowUpRight className="w-4 h-4 transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform duration-300" />
+              <BsArrowUpRight className="w-4 h-4 transform text-secondary group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform duration-300" />
             </div>
           )}
         </div>
