@@ -109,10 +109,7 @@ async function getYachts(limit = null) {
     const allYachts = await response.json();
     return typeof limit === "number" ? allYachts.slice(0, limit) : allYachts;
   } catch (error) {
-    // Silently return empty array in production to prevent page crashes
-    if (process.env.NODE_ENV === 'development') {
-      console.error('Error fetching yachts:', error);
-    }
+    // Errors are logged by API route
     return [];
   }
 }
@@ -136,10 +133,7 @@ async function getLocations(limit = 6) {
     const allLocations = await response.json();
     return allLocations.slice(0, limit);
   } catch (error) {
-    // Silently return empty array in production to prevent page crashes
-    if (process.env.NODE_ENV === 'development') {
-      console.error('Error fetching locations:', error);
-    }
+    // Errors are logged by API route
     return [];
   }
 }

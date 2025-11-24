@@ -380,9 +380,7 @@ export default function LocationDetail() {
           }
         }
       } catch (error) {
-        if (process.env.NODE_ENV === 'development') {
-          console.error('Error fetching data:', error);
-        }
+        // Errors are logged by API routes
       } finally {
         if (isMounted) {
           setLoading(false);

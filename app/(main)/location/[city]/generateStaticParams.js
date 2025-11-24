@@ -27,9 +27,7 @@ async function getLocations() {
     
     return await response.json();
   } catch (error) {
-    if (process.env.NODE_ENV === 'development') {
-      console.error('Error generating static params:', error);
-    }
+    // Errors are logged by API route
     return [];
   }
 }

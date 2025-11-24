@@ -29,9 +29,7 @@ async function getYachtBySlug(slug) {
 
     return await response.json();
   } catch (error) {
-    if (process.env.NODE_ENV === 'development') {
-      console.error('Error fetching yacht:', error);
-    }
+    clientLogger.error('Error fetching yacht:', error);
     return null;
   }
 }

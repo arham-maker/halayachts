@@ -27,9 +27,7 @@ async function getYachts() {
     
     return await response.json();
   } catch (error) {
-    if (process.env.NODE_ENV === 'development') {
-      console.error('Error fetching yachts:', error);
-    }
+    clientLogger.error('Error fetching yachts:', error);
     return [];
   }
 }
@@ -51,9 +49,7 @@ async function getLocations(limit = 6) {
     const allLocations = await response.json();
     return allLocations.slice(0, limit);
   } catch (error) {
-    if (process.env.NODE_ENV === 'development') {
-      console.error('Error fetching locations:', error);
-    }
+    clientLogger.error('Error fetching locations:', error);
     return [];
   }
 }

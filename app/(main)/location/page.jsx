@@ -69,9 +69,7 @@ async function getYachts(limit = null) {
     const allYachts = await response.json();
     return typeof limit === "number" ? allYachts.slice(0, limit) : allYachts;
   } catch (error) {
-    if (process.env.NODE_ENV === 'development') {
-      console.error('Error fetching yachts:', error);
-    }
+    // Errors are logged by API route
     return [];
   }
 }
@@ -94,9 +92,7 @@ async function getLocations() {
 
     return await response.json();
   } catch (error) {
-    if (process.env.NODE_ENV === 'development') {
-      console.error('Error fetching locations:', error);
-    }
+    // Errors are logged by API route
     return [];
   }
 }
