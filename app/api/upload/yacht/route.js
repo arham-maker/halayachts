@@ -2,6 +2,9 @@ import { NextResponse } from 'next/server';
 import { writeFile, mkdir } from 'fs/promises';
 import path from 'path';
 
+// Force dynamic rendering for file uploads
+export const dynamic = 'force-dynamic';
+
 export async function POST(request) {
   try {
     const formData = await request.formData();
@@ -41,18 +44,53 @@ export async function POST(request) {
     const extension = path.extname(file.name);
     const filename = `yacht-${timestamp}${extension}`;
     
-    // Define upload path
+    // Check if we're on Vercel (read-only filesystem)
+    const isVercel = process.env.VERCEL === '1';
+    
+    // On Vercel, the filesystem is read-only except /tmp
+    // However, /tmp files are not publicly accessible via HTTP
+    // For production, you MUST use cloud storage (S3, Cloudinary, Vercel Blob, etc.)
+    if (isVercel) {
+      return NextResponse.json(
+        { 
+          error: 'File uploads to filesystem are not supported on Vercel.',
+          details: 'Please use a cloud storage service like AWS S3, Cloudinary, or Vercel Blob Storage for file uploads in production.',
+          solution: 'Consider integrating cloud storage or use the upload feature only in local development.'
+        },
+        { status: 500 }
+      );
+    }
+    
+    // Local development - use public directory
     const uploadDir = path.join(process.cwd(), 'public', 'uploads', 'yachts');
+    const publicUrl = `/uploads/yachts/${filename}`;
     
     // Create directory if it doesn't exist
-    await mkdir(uploadDir, { recursive: true });
+    try {
+      await mkdir(uploadDir, { recursive: true });
+    } catch (mkdirError) {
+      console.error('Error creating directory:', mkdirError);
+      // If directory creation fails, try to continue anyway
+    }
 
     // Write file
     const filePath = path.join(uploadDir, filename);
-    await writeFile(filePath, buffer);
-
-    // Return public URL
-    const publicUrl = `/uploads/yachts/${filename}`;
+    try {
+      await writeFile(filePath, buffer);
+    } catch (writeError) {
+      console.error('Error writing file:', writeError);
+      // Provide more specific error message
+      if (writeError.code === 'EACCES' || writeError.code === 'EROFS') {
+        return NextResponse.json(
+          { 
+            error: 'File system is read-only. Please use cloud storage (S3, Cloudinary, or Vercel Blob) for production deployments.',
+            details: 'On Vercel, the filesystem is read-only. Consider using a cloud storage service.'
+          },
+          { status: 500 }
+        );
+      }
+      throw writeError;
+    }
 
     return NextResponse.json({
       success: true,
@@ -62,8 +100,12 @@ export async function POST(request) {
 
   } catch (error) {
     console.error('Error uploading file:', error);
+    const errorMessage = error.message || 'Failed to upload file';
     return NextResponse.json(
-      { error: 'Failed to upload file' },
+      { 
+        error: errorMessage,
+        details: process.env.VERCEL ? 'Vercel filesystem is read-only. Use cloud storage for file uploads.' : undefined
+      },
       { status: 500 }
     );
   }

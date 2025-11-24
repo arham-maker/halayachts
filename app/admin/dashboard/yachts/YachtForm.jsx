@@ -248,6 +248,11 @@ export default function YachtForm({ yachtId, initialData = null }) {
         body: uploadFormData,
       });
 
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({ error: 'Failed to upload file' }));
+        throw new Error(errorData.error || errorData.details || 'Failed to upload file');
+      }
+
       const result = await response.json();
 
       if (result.success) {
@@ -264,11 +269,13 @@ export default function YachtForm({ yachtId, initialData = null }) {
           }));
         }
       } else {
-        alert(result.error || 'Failed to upload file');
+        const errorMsg = result.error || result.details || 'Failed to upload file';
+        alert(errorMsg);
       }
     } catch (error) {
       console.error('Error uploading file:', error);
-      alert('Error uploading file');
+      const errorMsg = error.message || 'Error uploading file. Please check the console for details.';
+      alert(errorMsg);
     } finally {
       setUploading(prev => ({ ...prev, [uploadKey]: false }));
     }

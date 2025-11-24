@@ -74,6 +74,11 @@ export default function LocationsManagement() {
         body: uploadFormData,
       });
 
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({ error: 'Failed to upload image' }));
+        throw new Error(errorData.error || errorData.details || 'Failed to upload image');
+      }
+
       const result = await response.json();
 
       if (result.success) {
@@ -82,11 +87,13 @@ export default function LocationsManagement() {
           image: result.filePath
         }));
       } else {
-        alert(result.error || 'Failed to upload image');
+        const errorMsg = result.error || result.details || 'Failed to upload image';
+        alert(errorMsg);
       }
     } catch (error) {
       console.error('Error uploading image:', error);
-      alert('Error uploading image');
+      const errorMsg = error.message || 'Error uploading image. Please check the console for details.';
+      alert(errorMsg);
     } finally {
       setUploading(false);
     }
