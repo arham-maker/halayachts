@@ -6,9 +6,9 @@ const Escape = ({
   mainHeading = "Hala Yachts – Let's Plan Your Escape.",
   description = "With a presence spanning Miami, Dallas, Dubai, and Karachi, HalaYachts redefines the meaning of luxury travel by delivering bespoke charters, world-class service, and full-service yachting solutions. ",
   paragraph = "As a leading yacht charter service, we are passionate about crafting high-end voyages that give you the freedom to choose your ocean and your destination at your own pace. We are here to turn your travel dreams into a spectacular reality, whether you envision a trip to the exotic Arabian lands or a cruise along Miami’s turquoise coastline.",
-  showButton = true,
-  buttonText = "Contact Us",
-  buttonLink = "/contact",
+  // showButton = true,
+  // buttonText = "Contact Us",
+  // buttonLink = "/contact",
   imageSrc = "/images/about01.png",
   imageAlt = "Hala Yachts",
   showImage = true,
@@ -44,13 +44,13 @@ const Escape = ({
               {paragraph}
             </p>
           )}
-          {showButton && (
+          {/* {showButton && (
             <Link href={buttonLink}>
               <button className="bg-text-primary text-base p-3 sm:w-2xs w-40 md:text-base font-light tracking-wider rounded cursor-pointer hover:bg-opacity-90 transition duration-300 text-white">
                 {buttonText}
               </button>
             </Link>
-          )}
+          )} */}
           {showImage && (
             <div className="mt-8">
               <Image
