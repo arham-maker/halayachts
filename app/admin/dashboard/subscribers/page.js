@@ -67,34 +67,6 @@ export default function SubscribersPage() {
     if (!loggedIn) router.push('/admin');
     else fetchSubscribers();
   }, [router, fetchSubscribers]);
-    try {
-      setIsLoading(true);
-      setError(null);
-
-      const response = await fetch('/api/subscribers');
-
-      if (!response.ok) {
-        const errorData = await safeJsonParse(response);
-        throw new Error(errorData.error || `Server error: ${response.status}`);
-      }
-
-      const data = await safeJsonParse(response);
-
-      if (data.success) {
-        setSubscribers(data.data || []);
-      } else {
-        throw new Error(data.error || 'Failed to fetch subscribers');
-      }
-    } catch (error) {
-      console.error('Fetch subscribers error:', error);
-      const errorMessage = error.message || 'Network error. Please check your connection.';
-      setError(errorMessage);
-      toast.error(errorMessage);
-      setSubscribers([]);
-    } finally {
-      setIsLoading(false);
-    }
-  };
 
   const handleDelete = async (email) => {
     if (!confirm(`Are you sure you want to delete ${email}?`)) return;
