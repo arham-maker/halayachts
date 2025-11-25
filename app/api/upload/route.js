@@ -78,10 +78,15 @@ export async function POST(request) {
   } catch (error) {
     logger.error('Error uploading file:', error);
     
-    // Don't expose internal errors in production
+    const message = error?.message || 'Failed to upload file. Please try again.';
     const isProduction = process.env.NODE_ENV === 'production';
-    const errorResponse = isProduction
-      ? { error: 'Failed to upload file. Please try again.' }
+    const isConfigError =
+      message.includes('Cloudinary') ||
+      message.includes('Filesystem is read-only') ||
+      message.includes('configure Cloudinary');
+
+    const errorResponse = (!isProduction || isConfigError)
+      ? { error: message }
       : formatErrorResponse(error);
 
     return NextResponse.json(
