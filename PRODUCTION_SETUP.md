@@ -5,7 +5,7 @@ This guide will help you deploy the Hala Yachts website to production on Vercel 
 ## Prerequisites
 
 - MongoDB Atlas account and cluster
-- Cloud storage account (Cloudinary recommended, or AWS S3)
+- Cloudinary account for media storage
 - Git repository for deployment
 
 ## Environment Variables
@@ -32,25 +32,12 @@ NEXT_PUBLIC_API_URL=https://your-domain.com
 
 ### Cloud Storage Configuration
 
-Choose one storage provider:
-
-#### Option 1: Cloudinary (Recommended)
-
 ```bash
 CLOUDINARY_CLOUD_NAME=your_cloud_name
 CLOUDINARY_API_KEY=your_api_key
 CLOUDINARY_API_SECRET=your_api_secret
 CLOUDINARY_UPLOAD_PRESET=your_upload_preset
 CLOUDINARY_FOLDER=hala-yachts
-```
-
-#### Option 2: AWS S3
-
-```bash
-AWS_S3_BUCKET=your_bucket_name
-AWS_S3_REGION=us-east-1
-AWS_ACCESS_KEY_ID=your_access_key
-AWS_SECRET_ACCESS_KEY=your_secret_key
 ```
 
 ## Deployment Steps
@@ -91,9 +78,8 @@ Just ensure:
 ### Production-Ready Features
 
 ✅ **Cloud Storage Integration**
-- Automatic detection of storage provider
-- Supports Cloudinary and AWS S3
-- Fallback to local storage in development
+- Automatic Cloudinary detection (with local fallback for dev-only use)
+- Works seamlessly on serverless platforms
 
 ✅ **Security**
 - Rate limiting on uploads and login

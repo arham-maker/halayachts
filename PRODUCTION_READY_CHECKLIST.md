@@ -18,7 +18,7 @@ This document confirms that the Hala Yachts codebase is now **100% production-re
 - ✅ Graceful error handling in all components
 
 ### 3. **Cloud Storage Integration** ✅
-- ✅ `lib/storage.js` supports Cloudinary, AWS S3, and local (dev only)
+- ✅ `lib/storage.js` supports Cloudinary (with local fallback for dev only)
 - ✅ Automatic provider detection
 - ✅ Upload routes use cloud storage
 - ✅ Works on all serverless platforms (Vercel, Netlify, etc.)
@@ -84,11 +84,10 @@ Before deploying, ensure:
   - [ ] `MONGODB_URI` set
   - [ ] `ADMIN_EMAIL` set (production only)
   - [ ] `ADMIN_PASSWORD` set (production only)
-  - [ ] Cloud storage configured (Cloudinary or S3)
+  - [ ] Cloudinary configured for uploads
 
-- [ ] **Cloud Storage** (Choose one)
+- [ ] **Cloud Storage**
   - [ ] Cloudinary account created and configured
-  - [ ] OR AWS S3 bucket created and configured
   - [ ] Upload preset/credentials added to environment
 
 - [ ] **Testing**
@@ -133,17 +132,11 @@ ADMIN_PASSWORD=secure_password
 
 ### Optional (Recommended)
 ```bash
-# Cloud Storage (choose one)
+# Cloud Storage
 CLOUDINARY_CLOUD_NAME=...
 CLOUDINARY_API_KEY=...
 CLOUDINARY_API_SECRET=...
 CLOUDINARY_UPLOAD_PRESET=...
-
-# OR
-AWS_S3_BUCKET=...
-AWS_S3_REGION=...
-AWS_ACCESS_KEY_ID=...
-AWS_SECRET_ACCESS_KEY=...
 ```
 
 ## ✨ Key Features

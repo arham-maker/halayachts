@@ -33,11 +33,7 @@ The application is now configured to store uploaded files in the `public/uploads
 - **AWS Lambda** - Ephemeral filesystem
 
 ### For Serverless Platforms (Vercel/Netlify):
-If deploying to Vercel or Netlify, configure cloud storage:
-- Set `CLOUDINARY_CLOUD_NAME`, `CLOUDINARY_API_KEY`, etc.
-- Or set `AWS_S3_BUCKET`, `AWS_S3_REGION`, etc.
-
-The system will automatically use cloud storage if configured.
+If deploying to Vercel or Netlify, configure Cloudinary storage (recommended for all production environments). The system automatically switches to Cloudinary when credentials are present.
 
 ## File Structure
 
@@ -61,25 +57,17 @@ public/
 3. **Direct Access** - Files served directly from public folder
 4. **Automatic Organization** - Files organized by type (yachts/locations)
 
-## Migration to Cloud Storage (Optional)
+## Cloudinary Setup
 
-If you later want to use cloud storage for better scalability:
+Configure these environment variables in both development and production:
 
-1. **Cloudinary** (Recommended):
-   ```bash
-   CLOUDINARY_CLOUD_NAME=your_cloud_name
-   CLOUDINARY_API_KEY=your_api_key
-   CLOUDINARY_API_SECRET=your_api_secret
-   CLOUDINARY_UPLOAD_PRESET=your_preset
-   ```
+```bash
+CLOUDINARY_CLOUD_NAME=your_cloud_name
+CLOUDINARY_API_KEY=your_api_key
+CLOUDINARY_API_SECRET=your_api_secret
+CLOUDINARY_UPLOAD_PRESET=your_upload_preset
+CLOUDINARY_FOLDER=hala-yachts
+```
 
-2. **AWS S3**:
-   ```bash
-   AWS_S3_BUCKET=your_bucket
-   AWS_S3_REGION=us-east-1
-   AWS_ACCESS_KEY_ID=your_key
-   AWS_SECRET_ACCESS_KEY=your_secret
-   ```
-
-The system will automatically detect and use cloud storage if configured.
+Once set, uploads will go directly to Cloudinary and return secure URLs that work in every environment.
 

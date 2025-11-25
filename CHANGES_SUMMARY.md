@@ -6,7 +6,7 @@ This document summarizes all the changes made to make the Hala Yachts website pr
 
 ### 1. **Cloud Storage Integration** ✅
 - **Created**: `lib/storage.js` - Service-agnostic storage provider
-- **Supports**: Cloudinary, AWS S3, and local filesystem (dev only)
+- **Supports**: Cloudinary (with local filesystem fallback for dev only)
 - **Updated**: Upload routes to use cloud storage
 - **Benefit**: Works on Vercel and any serverless platform
 
@@ -137,7 +137,7 @@ Before deploying, ensure:
 
 - [ ] All environment variables are set
 - [ ] MongoDB connection string is correct
-- [ ] Cloud storage is configured (Cloudinary or S3)
+- [ ] Cloud storage is configured (Cloudinary)
 - [ ] Admin credentials are set
 - [ ] MongoDB network access allows your hosting IPs
 - [ ] Test file uploads work
@@ -160,10 +160,6 @@ CLOUDINARY_CLOUD_NAME=...
 CLOUDINARY_API_KEY=...
 CLOUDINARY_API_SECRET=...
 CLOUDINARY_UPLOAD_PRESET=...
-
-# OR AWS S3
-AWS_S3_BUCKET=...
-AWS_S3_REGION=...
 ```
 
 ## ✨ Key Benefits

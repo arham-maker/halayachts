@@ -2,10 +2,8 @@ import { NextResponse } from 'next/server';
 import { uploadFile } from '@/lib/storage';
 import { logger, formatErrorResponse } from '@/lib/utils';
 
-// Force dynamic rendering for file uploads
 export const dynamic = 'force-dynamic';
 
-// Rate limiting (simple in-memory store - use Redis in production for distributed systems)
 const uploadLimits = new Map();
 const MAX_UPLOADS_PER_HOUR = 50;
 
@@ -71,7 +69,7 @@ export async function POST(request) {
     // Upload file using storage provider
     const result = await uploadFile(file, 'locations');
 
-    return NextResponse.json({
+    return NextResponse.json({ 
       success: true,
       message: 'File uploaded successfully',
       filePath: result.filePath
