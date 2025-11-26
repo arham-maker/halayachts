@@ -5,6 +5,35 @@ import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import Image from 'next/image';
 
+const getImageSrc = (imagePath) => {
+  if (!imagePath) return null;
+  
+  const normalized = imagePath.trim();
+
+  if (
+    normalized.startsWith('http://') ||
+    normalized.startsWith('https://') ||
+    normalized.startsWith('data:')
+  ) {
+    return normalized;
+  }
+
+  if (normalized.startsWith('public/')) {
+    const withoutPublic = normalized.replace(/^public/, '');
+    return withoutPublic.startsWith('/') ? withoutPublic : `/${withoutPublic}`;
+  }
+
+  if (normalized.startsWith('/')) {
+    return normalized;
+  }
+
+  if (normalized.startsWith('uploads/')) {
+    return `/${normalized}`;
+  }
+
+  return `/uploads/${normalized.replace(/^\/+/, '')}`;
+};
+
 export default function YachtsManagement() {
   const [isReady, setIsReady] = useState(false);
   const [yachts, setYachts] = useState([]);
@@ -341,23 +370,28 @@ export default function YachtsManagement() {
                   </tr>
                 </thead>
                 <tbody className="bg-white divide-y divide-gray-200">
-                  {filteredAndSortedYachts().map((yacht) => (
+                  {filteredAndSortedYachts().map((yacht) => {
+                    const imageSrc = getImageSrc(yacht.image);
+                    return (
                     <tr key={yacht._id} className="hover:bg-gray-50 transition">
                       <td className="px-6 py-4 whitespace-nowrap">
                         <div className="h-20 w-28 flex items-center justify-center bg-gray-100 rounded-lg overflow-hidden border border-gray-200 relative">
-                          {yacht.image ? (
+                          {imageSrc ? (
                             <Image
-                              src={yacht.image}
+                              src={imageSrc}
                               alt={yacht.title}
                               fill
                               className="object-cover"
+                              sizes="112px"
                               onError={(e) => {
-                                e.target.style.display = 'none';
-                                e.target.nextSibling.style.display = 'flex';
+                                const target = e.target;
+                                target.style.display = 'none';
+                                const fallback = target.nextSibling;
+                                if (fallback) fallback.style.display = 'flex';
                               }}
                             />
                           ) : null}
-                          <div className={`${yacht.image ? 'hidden' : 'flex'} w-full h-full items-center justify-center text-gray-400 text-xs tracking-wide`}>
+                          <div className={`${imageSrc ? 'hidden' : 'flex'} w-full h-full items-center justify-center text-gray-400 text-xs tracking-wide`}>
                             No Image
                           </div>
                         </div>
@@ -408,7 +442,7 @@ export default function YachtsManagement() {
                         </div>
                       </td>
                     </tr>
-                  ))}
+                  )})}
                 </tbody>
               </table>
             </div>
