@@ -240,18 +240,18 @@
 //     </>
 //   );
 // }
+
 import { Suspense } from 'react';
-import Banner from "../components/Banner";
-import Community from "../components/community";
-import WhyHalaYachts from "../components/WhyHalaYachts";
-import YachtCard from "../components/YachtCard";
+import Banner from "../../components/Banner";
+import Community from "../../components/community";
+import WhyHalaYachts from "../../components/WhyHalaYachts";
+import YachtCard from "../../components/YachtCard";
 import { GoArrowUpRight } from "react-icons/go";
 import Link from "next/link";
 import SearchHomeSection from "../components/SearchHomeSection";
-import LocationCard from "../components/LocationCard";
+import LocationCard from "../../components/LocationCard";
 import { connectToDatabase } from '@/lib/mongodb';
 
-// Loading component for suspense
 function SearchSectionLoader() {
   return (
     <div className="h-40 bg-gray-100 animate-pulse rounded-lg"></div>
