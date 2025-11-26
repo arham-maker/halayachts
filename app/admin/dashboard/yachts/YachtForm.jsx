@@ -41,7 +41,7 @@ export default function YachtForm({ yachtId, initialData = null }) {
       crew: '',
       bathrooms: '',
       cabins: '',
-      amenities_water_toys: '',
+      water_toys: '',
       builder: '',
       name_of_boat: '',
       owner_name_entity_llc: '',
@@ -1261,7 +1261,7 @@ export default function YachtForm({ yachtId, initialData = null }) {
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2 tracking-wide">Water Toys & Amenities</label>
+                <label className="block text-sm font-medium text-gray-700 mb-2 tracking-wide">Water Toys & </label>
                 <input
                   type="text"
                   name="specifications.amenities_water_toys"
