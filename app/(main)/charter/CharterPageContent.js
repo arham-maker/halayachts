@@ -11,7 +11,7 @@ import Link from 'next/link';
 import LocationCard from '../../components/LocationCard';
 import { clientLogger } from '@/lib/clientLogger';
 
-// Client-side function that fetches yachts from database
+// Client-side function that fetches yachts from database 
 async function getYachts() {
   try {
     const response = await fetch('/api/yachts', { 
