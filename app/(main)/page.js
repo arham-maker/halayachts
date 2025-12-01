@@ -93,10 +93,7 @@ import { connectToDatabase } from '@/lib/mongodb';
 // Server component that fetches yachts from database
 async function getYachts(limit = null) {
   try {
-    // Production mein relative URL use karo
-    const apiUrl = process.env.NODE_ENV === 'development' 
-      ? 'http://localhost:3000/api/yachts'
-      : '/api/yachts'; // Production mein relative URL chalega
+    const apiUrl = await getApiUrl('/api/yachts'); 
     
     const response = await fetch(apiUrl, {
       cache: 'no-store',
@@ -112,6 +109,7 @@ async function getYachts(limit = null) {
     const allYachts = await response.json();
     return typeof limit === "number" ? allYachts.slice(0, limit) : allYachts;
   } catch (error) {
+    // Errors are logged by API route
     console.error('Error fetching yachts:', error);
     return [];
   }
@@ -120,10 +118,7 @@ async function getYachts(limit = null) {
 // Server component that fetches locations from database
 async function getLocations(limit = 6) {
   try {
-    // Production mein relative URL use karo
-    const apiUrl = process.env.NODE_ENV === 'development' 
-      ? 'http://localhost:3000/api/locations'
-      : '/api/locations'; // Production mein relative URL chalega
+    const apiUrl = await getApiUrl('/api/locations'); 
     
     const response = await fetch(apiUrl, {
       cache: 'no-store',
@@ -139,6 +134,7 @@ async function getLocations(limit = 6) {
     const allLocations = await response.json();
     return allLocations.slice(0, limit);
   } catch (error) {
+    // Errors are logged by API route
     console.error('Error fetching locations:', error);
     return [];
   }
