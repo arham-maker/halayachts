@@ -53,7 +53,7 @@ import { getApiUrl } from '@/lib/utils';
 // Server component that fetches yachts from database
 async function getYachts(limit = null) {
   try {
-    const apiUrl = getApiUrl('/api/yachts');
+    const apiUrl = await getApiUrl('/api/yachts');
     
     const response = await fetch(apiUrl, {
       cache: 'no-store',
@@ -70,6 +70,7 @@ async function getYachts(limit = null) {
     return typeof limit === "number" ? allYachts.slice(0, limit) : allYachts;
   } catch (error) {
     // Errors are logged by API route
+    console.error('Error fetching yachts:', error);
     return [];
   }
 }
@@ -77,7 +78,7 @@ async function getYachts(limit = null) {
 // Server component that fetches locations from database
 async function getLocations() {
   try {
-    const apiUrl = getApiUrl('/api/locations');
+    const apiUrl = await getApiUrl('/api/locations');
     
     const response = await fetch(apiUrl, {
       cache: 'no-store',
@@ -93,6 +94,7 @@ async function getLocations() {
     return await response.json();
   } catch (error) {
     // Errors are logged by API route
+    console.error('Error fetching locations:', error);
     return [];
   }
 }
