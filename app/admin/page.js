@@ -34,7 +34,11 @@ export default function AdminLogin() {
 
       if (response.ok) {
         toast.success('Login successful!');
-        localStorage.setItem('adminLoggedIn', 'true');
+        // Keep existing localStorage flag so current client guards continue to work,
+        // while the server also manages a secure HTTP-only JWT cookie.
+        if (typeof window !== 'undefined') {
+          localStorage.setItem('adminLoggedIn', 'true');
+        }
         setTimeout(() => router.push('/admin/dashboard'), 1500);
       } else {
         toast.error(data.error || 'Login failed');

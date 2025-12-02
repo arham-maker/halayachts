@@ -1,5 +1,9 @@
 import { NextResponse } from 'next/server';
 import { logger, formatErrorResponse, isProduction } from '@/lib/utils';
+import { connectToDatabase } from '@/lib/mongodb';
+import Admin from '@/models/Admin';
+import bcrypt from 'bcryptjs';
+import jwt from 'jsonwebtoken';
 
 // Force dynamic rendering
 export const dynamic = 'force-dynamic';
@@ -36,21 +40,30 @@ function resetAttempts(ip) {
   loginAttempts.delete(ip);
 }
 
-const ADMIN_CREDENTIALS = {
-  email: process.env.ADMIN_EMAIL || (isProduction() ? null : "admin@halayachts.com"),
-  password: process.env.ADMIN_PASSWORD || (isProduction() ? null : "admin123")
-};
+function getJwtSecret() {
+  const secret = process.env.ADMIN_JWT_SECRET || process.env.JWT_SECRET;
 
-if (isProduction() && (!ADMIN_CREDENTIALS.email || !ADMIN_CREDENTIALS.password)) {
-  throw new Error('ADMIN_EMAIL and ADMIN_PASSWORD must be set in production');
+  if (!secret) {
+    if (isProduction()) {
+      throw new Error('ADMIN_JWT_SECRET or JWT_SECRET must be set in production for admin authentication');
+    }
+
+    // In development we fall back to a static secret to simplify setup,
+    // but this MUST NOT be used in production.
+    logger.warn('Using insecure default JWT secret in development. Set ADMIN_JWT_SECRET or JWT_SECRET.');
+    return 'insecure-dev-secret-change-me';
+  }
+
+  return secret;
 }
 
 export async function POST(request) {
   try {
     // Get client IP for rate limiting
-    const ip = request.headers.get('x-forwarded-for')?.split(',')[0] || 
-               request.headers.get('x-real-ip') || 
-               'unknown';
+    const ip =
+      request.headers.get('x-forwarded-for')?.split(',')[0] ||
+      request.headers.get('x-real-ip') ||
+      'unknown';
 
     // Check rate limit
     if (!checkLoginRateLimit(ip)) {
@@ -69,29 +82,71 @@ export async function POST(request) {
       );
     }
 
-    // Validate credentials
-    if (email === ADMIN_CREDENTIALS.email && password === ADMIN_CREDENTIALS.password) {
-      resetAttempts(ip);
-      logger.log(`Admin login successful from IP: ${ip}`);
-      
-      return NextResponse.json({
-        success: true,
-        message: 'Login successful',
-        user: {
-          email: ADMIN_CREDENTIALS.email,
-          name: 'Hala Yachts Admin'
-        }
-      });
-    } else {
+    await connectToDatabase();
+
+    const admin = await Admin.findOne({ email: email.toLowerCase().trim(), isActive: true });
+
+    if (!admin) {
       recordFailedAttempt(ip);
-      logger.warn(`Failed login attempt from IP: ${ip}`);
-      
+      logger.warn(`Failed admin login (unknown email) from IP: ${ip}`);
+
       return NextResponse.json(
         { error: 'Invalid email or password' },
         { status: 401 }
       );
     }
 
+    const passwordValid = await bcrypt.compare(password, admin.passwordHash);
+
+    if (!passwordValid) {
+      recordFailedAttempt(ip);
+      logger.warn(`Failed admin login (invalid password) from IP: ${ip}`);
+
+      return NextResponse.json(
+        { error: 'Invalid email or password' },
+        { status: 401 }
+      );
+    }
+
+    // Successful login, reset attempts
+    resetAttempts(ip);
+
+    const jwtSecret = getJwtSecret();
+
+    const token = jwt.sign(
+      {
+        sub: admin._id.toString(),
+        email: admin.email,
+        role: admin.role,
+      },
+      jwtSecret,
+      {
+        expiresIn: '7d',
+      }
+    );
+
+    logger.log(`Admin login successful from IP: ${ip}`);
+
+    const response = NextResponse.json({
+      success: true,
+      message: 'Login successful',
+      user: {
+        email: admin.email,
+        name: admin.name,
+        role: admin.role,
+      },
+    });
+
+    // Set HTTP-only cookie for session management
+    response.cookies.set('hala_admin_token', token, {
+      httpOnly: true,
+      secure: isProduction(),
+      sameSite: 'lax',
+      path: '/',
+      maxAge: 60 * 60 * 24 * 7, // 7 days
+    });
+
+    return response;
   } catch (error) {
     logger.error('Login error:', error);
     

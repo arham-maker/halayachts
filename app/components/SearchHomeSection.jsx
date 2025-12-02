@@ -157,7 +157,7 @@ function HomeSearchSectionContent({
 
   return (
     <section
-      className={`2xl:pt-64 2xl:pb-24 lg:pb-5 lg:py-24 py-8 px-5 xl:relative ${className}`}
+      className={`2xl:pt-64 2xl:pb-36 lg:pb-5 lg:py-24 py-8 px-5 xl:relative ${className}`}
       aria-labelledby="section-heading"
     >
       {/* Custom CSS for toast width - Better approach */}

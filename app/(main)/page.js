@@ -1,37 +1,37 @@
-import { Suspense } from 'react';
+import { Suspense } from "react";
 import Banner from "../components/Banner";
 import Community from "../components/community";
-import WhyHalaYachts from "../components/WhyHalaYachts";
 import YachtCard from "../components/YachtCard";
 import { GoArrowUpRight } from "react-icons/go";
 import Link from "next/link";
 import SearchHomeSection from "../components/SearchHomeSection";
 import LocationCard from "../components/LocationCard";
 
-// Loading component for suspense
 function SearchSectionLoader() {
-  return (
-    <div className="h-40 bg-gray-100 animate-pulse rounded-lg"></div>
-  );
+  return <div className="h-40 bg-gray-100 animate-pulse rounded-lg"></div>;
 }
 
-// Loading component for yachts
 function YachtsLoader() {
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3 gap-8">
       {[...Array(6)].map((_, i) => (
-        <div key={i} className="bg-gray-200 h-96 rounded-lg animate-pulse"></div>
+        <div
+          key={i}
+          className="bg-gray-200 h-96 rounded-lg animate-pulse"
+        ></div>
       ))}
     </div>
   );
 }
 
-// Loading component for locations
 function LocationsLoader() {
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
       {[...Array(6)].map((_, i) => (
-        <div key={i} className="bg-gray-200 h-64 rounded-lg animate-pulse"></div>
+        <div
+          key={i}
+          className="bg-gray-200 h-64 rounded-lg animate-pulse"
+        ></div>
       ))}
     </div>
   );
@@ -87,65 +87,59 @@ const Exclusive_Locations = {
   },
 };
 
-import { getApiUrl } from '@/lib/utils';
-import { connectToDatabase } from '@/lib/mongodb';
+import { getApiUrl } from "@/lib/utils";
+import { connectToDatabase } from "@/lib/mongodb";
 
-// Server component that fetches yachts from database
 async function getYachts(limit = null) {
   try {
-    const apiUrl = await getApiUrl('/api/yachts'); 
-    
+    const apiUrl = await getApiUrl("/api/yachts");
+
     const response = await fetch(apiUrl, {
-      cache: 'no-store',
+      cache: "no-store",
       headers: {
-        'Content-Type': 'application/json',
+        "Content-Type": "application/json",
       },
     });
-    
+
     if (!response.ok) {
       throw new Error(`Failed to fetch yachts: ${response.status}`);
     }
-    
+
     const allYachts = await response.json();
     return typeof limit === "number" ? allYachts.slice(0, limit) : allYachts;
   } catch (error) {
-    // Errors are logged by API route
-    console.error('Error fetching yachts:', error);
+    console.error("Error fetching yachts:", error);
     return [];
   }
 }
 
-// Server component that fetches locations from database
 async function getLocations(limit = 6) {
   try {
-    const apiUrl = await getApiUrl('/api/locations'); 
-    
+    const apiUrl = await getApiUrl("/api/locations");
+
     const response = await fetch(apiUrl, {
-      cache: 'no-store',
+      cache: "no-store",
       headers: {
-        'Content-Type': 'application/json',
+        "Content-Type": "application/json",
       },
     });
-    
+
     if (!response.ok) {
       throw new Error(`Failed to fetch locations: ${response.status}`);
     }
-    
+
     const allLocations = await response.json();
     return allLocations.slice(0, limit);
   } catch (error) {
-    // Errors are logged by API route
-    console.error('Error fetching locations:', error);
+    console.error("Error fetching locations:", error);
     return [];
   }
 }
-// Force dynamic rendering for real-time data
-export const dynamic = 'force-dynamic';
+export const dynamic = "force-dynamic";
 
-// Yachts Section as a separate component for Suspense
 async function YachtsSection() {
   const yachtsData = await getYachts(6);
-  
+
   const yachtGridClasses = `grid ${YACHT_DISPLAY_CONFIG.grid.base} ${YACHT_DISPLAY_CONFIG.grid.md} ${YACHT_DISPLAY_CONFIG.grid.lg} ${YACHT_DISPLAY_CONFIG.grid.xl} gap-8`;
 
   return (
@@ -192,14 +186,11 @@ async function YachtsSection() {
   );
 }
 
-// Locations Section as a separate component for Suspense
 async function LocationsSection() {
   const locationsData = await getLocations(6);
-  const yachtsData = await getYachts(); // Fetch all yachts for accurate counts
-  
+
   const locationGridClasses = `grid ${LOCATIONS_GRID_CONFIG.base} ${LOCATIONS_GRID_CONFIG.md} ${LOCATIONS_GRID_CONFIG.lg} ${LOCATIONS_GRID_CONFIG.gap}`;
 
-  // Dynamic count calculate karo locations ke liye
   const locationsWithCount = locationsData.map((location) => {
     const yachtsCount = yachtsData.filter(
       (yacht) => yacht.location?.city === location.title
@@ -272,71 +263,73 @@ export default function Home() {
         buttonLink={HERO_CONTENT.cta.buttonLink}
         showContact={HERO_CONTENT.showContact}
       />
-      
+
       {/* SearchHomeSection ko suspense mein wrap karo */}
       <Suspense fallback={<SearchSectionLoader />}>
         <SearchHomeSection />
       </Suspense>
 
-      <WhyHalaYachts />
-
       {/* Yachts Section with Suspense */}
-      <Suspense fallback={
-        <section className="lg:py-24 py-8 bg-white">
-          <div className="max-w-7xl mx-auto px-5 flex flex-col gap-10">
-            <div className="flex flex-col lg:flex-row lg:justify-between gap-5 sm:gap-4">
-              <div className="flex flex-col gap-5 flex-1">
-                <h1 className="text-3xl md:text-5xl lg:text-6xl xl:text-[65px] font-light tracking-wide mb-4 lg:mb-6">
-                  {FLEET_SECTION.title}
-                </h1>
-                <p className="text-base md:text-lg lg:text-xl xl:max-w-5xl tracking-wider font-light text-gray-700">
-                  {FLEET_SECTION.description}
-                </p>
-              </div>
-              <div className="lg:self-center">
-                <div className="group flex items-center gap-2 text-primary">
-                  <span className="text-base md:text-lg lg:text-xl font-medium">
-                    {FLEET_SECTION.viewMore.text}
-                  </span>
-                  <GoArrowUpRight className="w-5 h-5 md:w-6 md:h-6" />
+      <Suspense
+        fallback={
+          <section className="lg:py-24 py-8 bg-white">
+            <div className="max-w-7xl mx-auto px-5 flex flex-col gap-10">
+              <div className="flex flex-col lg:flex-row lg:justify-between gap-5 sm:gap-4">
+                <div className="flex flex-col gap-5 flex-1">
+                  <h1 className="text-3xl md:text-5xl lg:text-6xl xl:text-[65px] font-light tracking-wide mb-4 lg:mb-6">
+                    {FLEET_SECTION.title}
+                  </h1>
+                  <p className="text-base md:text-lg lg:text-xl xl:max-w-5xl tracking-wider font-light text-gray-700">
+                    {FLEET_SECTION.description}
+                  </p>
+                </div>
+                <div className="lg:self-center">
+                  <div className="group flex items-center gap-2 text-primary">
+                    <span className="text-base md:text-lg lg:text-xl font-medium">
+                      {FLEET_SECTION.viewMore.text}
+                    </span>
+                    <GoArrowUpRight className="w-5 h-5 md:w-6 md:h-6" />
+                  </div>
                 </div>
               </div>
+              <div className="border-t border-gray-300" aria-hidden="true" />
+              <YachtsLoader />
             </div>
-            <div className="border-t border-gray-300" aria-hidden="true" />
-            <YachtsLoader />
-          </div>
-        </section>
-      }>
+          </section>
+        }
+      >
         <YachtsSection />
       </Suspense>
 
       {/* Locations Section with Suspense */}
-      <Suspense fallback={
-        <section className="lg:py-24 py-8">
-          <div className="max-w-7xl mx-auto px-5 flex flex-col gap-10">
-            <div className="flex flex-col lg:flex-row lg:justify-between gap-5 sm:gap-4">
-              <div className="flex flex-col gap-5 flex-1">
-                <h1 className="text-3xl md:text-5xl lg:text-6xl xl:text-[65px] font-light tracking-wide mb-4 lg:mb-6">
-                  {Exclusive_Locations.title}
-                </h1>
-                <p className="text-base md:text-lg lg:text-xl xl:max-w-5xl tracking-wider font-light text-gray-700">
-                  {Exclusive_Locations.description}
-                </p>
-              </div>
-              <div className="lg:self-center">
-                <div className="group flex items-center gap-2 text-primary">
-                  <span className="text-base md:text-lg lg:text-xl font-medium">
-                    {Exclusive_Locations.viewMore.text}
-                  </span>
-                  <GoArrowUpRight className="w-5 h-5 md:w-6 md:h-6" />
+      <Suspense
+        fallback={
+          <section className="lg:py-24 py-8">
+            <div className="max-w-7xl mx-auto px-5 flex flex-col gap-10">
+              <div className="flex flex-col lg:flex-row lg:justify-between gap-5 sm:gap-4">
+                <div className="flex flex-col gap-5 flex-1">
+                  <h1 className="text-3xl md:text-5xl lg:text-6xl xl:text-[65px] font-light tracking-wide mb-4 lg:mb-6">
+                    {Exclusive_Locations.title}
+                  </h1>
+                  <p className="text-base md:text-lg lg:text-xl xl:max-w-5xl tracking-wider font-light text-gray-700">
+                    {Exclusive_Locations.description}
+                  </p>
+                </div>
+                <div className="lg:self-center">
+                  <div className="group flex items-center gap-2 text-primary">
+                    <span className="text-base md:text-lg lg:text-xl font-medium">
+                      {Exclusive_Locations.viewMore.text}
+                    </span>
+                    <GoArrowUpRight className="w-5 h-5 md:w-6 md:h-6" />
+                  </div>
                 </div>
               </div>
+              <div className="border-t border-gray-300" aria-hidden="true" />
+              <LocationsLoader />
             </div>
-            <div className="border-t border-gray-300" aria-hidden="true" />
-            <LocationsLoader />
-          </div>
-        </section>
-      }>
+          </section>
+        }
+      >
         <LocationsSection />
       </Suspense>
 
