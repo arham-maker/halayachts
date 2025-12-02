@@ -25,13 +25,13 @@ const LOCATIONS_GRID_CONFIG = {
 const Curated_Global_Ports = {
   title: "Curated Global Ports",
   description:
-    "Each destination in our portfolio has been handpicked for its visual charm, cultural appeal, and unique features of its waters. We ensure your voyage begins and ends with the highest standards of marine excellence."
+    "Each destination in our portfolio has been handpicked for its visual charm, cultural appeal, and unique features of its waters. As a leading yacht charter service, we ensure your voyage begins and ends with the highest standards of marine excellence. "
 };
 
 const FLEET_SECTION = {
   title: "Featured Yachts",
   description:
-    "Each yacht in our featured collection is a masterpiece of design and performance, offering unrivaled sophistication, privacy, and comfort on every voyage.",
+    "Each yacht in our featured collection is a masterpiece of design and performance, offering unrivaled sophistication, privacy, and comfort on every voyage",
   viewMore: {
     text: "View the Collection",
     link: "/charter",
@@ -41,7 +41,7 @@ const FLEET_SECTION = {
 const Design_Routes = {
   title: "Design Your Own Route",
   description:
-    "With HalaYachts, we let you go wherever your heart takes you. Combine breathtaking destinations across continents or let our experts craft a bespoke itinerary tailored to your pace, passions, and purpose",
+    "With HalaYachts, we let you go wherever your heart takes you. Combine breathtaking destinations or let our experts craft a bespoke itinerary tailored to your pace, passion,  and schedule. ",
   viewMore: {
     text: "About Us",
     link: "/about",
@@ -129,7 +129,7 @@ export default async function Location() {
     <>
       <Banner
         mainHeading="Explore the World’s Most Exquisite Waters"
-        description="Get ready to embark on a voyage that will fascinate and excite you to the core. Whether you are drawn to the pulsating nightlife, the serenity of pure nature, or the privacy of an exclusive escape, HalaYachts unlocks the door to the world’s most enchanting waters. We craft journeys that speak of luxury and pure indulgence as you glide along the French Riviera, drift through the serene marinas in Miami, or discover hidden gems across Arabian coasts. "
+        description="Get ready to embark on a voyage that will fascinate and excite you to the core. Whether you are drawn to the pulsating nightlife, the serenity of pure nature, or the privacy of an exclusive escape, HalaYachts unlocks the door to the world’s most enchanting waters. We craft journeys that speak of luxury and pure indulgence as you explore Miami’s tropical waters, cruise Dubai's shimmering coastlines, or sail on the azure waters in Greece."
         showContact={false}
         height="medium"
         backgroundImage="/images/location.png"
@@ -197,7 +197,7 @@ export default async function Location() {
       </section>
 
       <PerfectYachtBanner
-        heading="Find Your Perfect Yacht"
+        heading="Find Your Perfect Yacht Today "
         text="Browse our exclusive collection of superyachts and plan your next luxury voyage with the world’s most reliable yachting specialists."
         buttonText="Discover. Dream. Sail."
         buttonLink="/charter" />
