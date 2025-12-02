@@ -93,7 +93,7 @@ function LocationsSection({ locationsData, yachtsData }) {
   const Exclusive_Locations = {
     title: "Exclusive Locations",
     description:
-      "Sail to the world&apos;s most breathtaking destinations, surrounded by the comfort and seclusion of your private yacht. Where every horizon is yours to explore in complete comfort.",
+      "Set sail to the world’s most iconic locations with HalaYachts. From the glimmering harbors of Dubai to the sun-soaked coasts of the Americas, every voyage invites you to indulge absolute comfort, privacy, and joy. ",
     viewMore: {
       text: "View more",
       link: "/location",
