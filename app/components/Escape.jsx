@@ -3,9 +3,9 @@ import Link from 'next/link'
 import Image from 'next/image'
 
 const Escape = ({
-  mainHeading = "Hala Yachts – Let's Plan Your Escape.",
-  description = "With a presence spanning Miami, Dallas, Dubai, and Karachi, HalaYachts redefines the meaning of luxury travel by delivering bespoke charters, world-class service, and full-service yachting solutions. ",
-  paragraph = "As a leading yacht charter service, we are passionate about crafting high-end voyages that give you the freedom to choose your ocean and your destination at your own pace. We are here to turn your travel dreams into a spectacular reality, whether you envision a trip to the exotic Arabian lands or a cruise along Miami’s turquoise coastline.",
+  mainHeading = "HalaYachts – Let's Plan Your Escape",
+  description = "With a presence spanning Miami, Dallas, and Dubai, HalaYachts aims to redefine the meaning of luxury travel by delivering bespoke charters, world-class service, and all-in-one yachting solutions.",
+  paragraph = "As a leading yacht charter service, we are passionate about crafting high-end voyages that give you the freedom to choose your ocean and your destination at your own pace. We are here to turn your travel dreams into a spectacular reality, whether you envision a trip to the exotic Arabian lands or a cruise along Miami’s turquoise coastline. ",
   // showButton = true,
   // buttonText = "Contact Us",
   // buttonLink = "/contact",
@@ -17,8 +17,8 @@ const Escape = ({
 
   const renderHeadingWithHighlight = (heading) => {
     return heading.replace(
-      'Hala Yachts',
-      '<span class="text-secondary font-medium">Hala Yachts</span>'
+      'HalaYachts',
+      '<span class="text-secondary font-medium">HalaYachts</span>'
     );
   };
 

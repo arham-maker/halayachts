@@ -3,20 +3,20 @@ import React from 'react'
 const ExceptionalService = ({
   backgroundImage = "/images/about_us.png",
   subHeading = "Expertise You Can Trust",
-  mainHeading = "Premium Luxury Yachting Experience",
-  description = "Backed up by an expert crew, we have hands-on experience in planning and executing yacht journeys from beginning to end. Our in-depth knowledge of yachts and access to the most attractive yachts in the market ensure you get a yacht that perfectly matches your needs and expectations. ",
+  mainHeading = "Premium Luxury Yachting Experience ",
+  description = "Backed up by an expert crew, we have hands-on experience in planning and executing yacht journeys from beginning to end. Our in-depth knowledge of yachts and access to the most attractive yachts in the market ensure you get a yacht that perfectly matches your needs and expectations.  ",
   features = [
     {
       title: "Yacht Charter Services",
-      description: "We boast an extensive range of luxury vessels ranging from 40ft sailing yachts to 200ft+ superyachts."
+      description: "We boast an extensive range of luxury vessels ranging from 40ft sailing yachts to 200ft+ superyachts. "
     },
     {
       title: "Yachts for Sale",
       description: "Explore our premium fleet of luxury yachts for sale, from performance cruisers to motor sailers."
     },
     {
-      title: "Yachts for Management",
-      description: "Our superyacht management services strive for the highest standards in operational efficiency, security, and finances."
+      title: "Yachts for Management ",
+      description: "Our superyacht management services strive for the highest standards in operational efficiency, security, and finances.  "
     }
   ],
   customClass = ""

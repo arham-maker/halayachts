@@ -1,40 +1,15 @@
 import React from 'react'
-import Image from 'next/image'
 
 const MeetOurTeam = ({
-  mainHeading = "Meet Our Team",
-  description = "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.",
-  teamMembers = [
-    {
-      name: "Your Name",
-      position: "Chief Executive Officer",
-      image: "/images/team1.png",
-    },
-    {
-      name: "Your Name",
-      position: "Chief Executive Officer",
-      image: "/images/team1.png",
-    },
-    {
-      name: "Your Name",
-      position: "Chief Executive Officer",
-      image: "/images/team1.png",
-    },
-    {
-      name: "Your Name",
-      position: "Chief Executive Officer",
-      image: "/images/team1.png",
-    },
-    {
-      name: "Your Name",
-      position: "Chief Executive Officer",
-      image: "/images/team1.png",
-    },
-    {
-      name: "Your Name",
-      position: "Chief Executive Officer",
-      image: "/images/team1.png",
-    }
+  mainHeading = "Sail Beyond Ordinary",
+  description = "Every yacht in our curated collection is not just a vessel but an exquisitely crafted experience for those who dare to dream big. Our yachts are specially designed to deliver top-notch travel experiences for travelers who desire adventure, pleasure, and the tranquility of the world's most beautiful waters. Choose from:",
+  services = [
+    "Private Yacht Charters",
+    "Corporate Voyages",
+    "Honeymoon Escapes",
+    "Luxury Yacht Rentals",
+    "Explorer or Expedition Yachts",
+    "Sailing Yachts"
   ],
   columns = 6,
   customClass = ""
@@ -42,7 +17,7 @@ const MeetOurTeam = ({
   const gridColumns = {
     4: "grid-cols-2 md:grid-cols-2 lg:grid-cols-4",
     5: "grid-cols-2 md:grid-cols-3 lg:grid-cols-5",
-    6: "grid-cols-2 md:grid-cols-3 lg:grid-cols-3 xl:grid-cols-6"
+    6: "grid-cols-2 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-3"
   };
 
   return (
@@ -61,28 +36,16 @@ const MeetOurTeam = ({
           )}
         </div>
         <div className={`grid ${gridColumns[columns]} gap-6`}>
-          {teamMembers.map((member, index) => (
+          {services.map((service, index) => (
             <div
               key={index}
-              className="group text-center bg-[#F2F2F2] rounded-lg shadow-md hover:shadow-xl transition-all duration-300 overflow-hidden cursor-pointer p-3 flex-col flex gap-3"
+              className="group text-center bg-[#F2F2F2] rounded-lg shadow-md hover:shadow-xl transition-all duration-300 overflow-hidden cursor-pointer p-6 flex items-center justify-center min-h-[150px]"
             >
-              <div className="relative h-44 overflow-hidden">
-                <Image
-                  src={member.image}
-                  alt={member.name}
-                  width={300}
-                  height={300}
-                  className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500 rounded"
-                />
-                <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-all duration-300" />
-              </div>
-              <div className="flex-col flex gap-1">
-                <h3 className="text-xl font-semibold text-secondary tracking-wider">
-                  {member.name}
+              <div className="flex-col flex gap-1 w-full">
+                <h3 className="text-xl font-semibold text-secondary tracking-wider group-hover:text-primary transition-colors duration-300">
+                  {service}
                 </h3>
-                <p className="text-sm sm:text-base tracking-wide">
-                  {member.position}
-                </p>
+                <div className="mt-2 h-0.5 w-0 group-hover:w-full bg-primary transition-all duration-500 mx-auto" />
               </div>
             </div>
           ))}
