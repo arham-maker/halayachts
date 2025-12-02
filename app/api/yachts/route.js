@@ -40,6 +40,15 @@ export async function POST(request) {
     const db = connection.db || connection;
     
     const yachtData = await request.json();
+
+    // Ensure slug is present - auto-generate from title if missing
+    if (yachtData.title && !yachtData.slug) {
+      yachtData.slug = yachtData.title
+        .toLowerCase()
+        .trim()
+        .replace(/[^a-z0-9]+/g, '-')
+        .replace(/(^-|-$)+/g, '');
+    }
     
     // Validation - required fields
     if (!yachtData.title || !yachtData.slug) {
@@ -62,6 +71,24 @@ export async function POST(request) {
         { error: 'Yacht with this slug already exists' },
         { status: 409 }
       );
+    }
+
+    // Auto-generate sequential numeric ID if not provided
+    if (!yachtData.id) {
+      const lastYacht = await db
+        .collection('yachts')
+        .find({}, { projection: { id: 1 } })
+        .sort({ id: -1 })
+        .limit(1)
+        .toArray();
+
+      const lastId = lastYacht[0]?.id ? Number(lastYacht[0].id) || 0 : 0;
+      yachtData.id = lastId + 1;
+    }
+
+    // Default yacht_id to same as id if not provided
+    if (!yachtData.yacht_id) {
+      yachtData.yacht_id = yachtData.id;
     }
 
     // Create new yacht with timestamps

@@ -187,7 +187,10 @@ async function YachtsSection() {
 }
 
 async function LocationsSection() {
-  const locationsData = await getLocations(6);
+  const [locationsData, yachtsData] = await Promise.all([
+    getLocations(6),
+    getYachts(), // fetch all yachts to compute counts per location
+  ]);
 
   const locationGridClasses = `grid ${LOCATIONS_GRID_CONFIG.base} ${LOCATIONS_GRID_CONFIG.md} ${LOCATIONS_GRID_CONFIG.lg} ${LOCATIONS_GRID_CONFIG.gap}`;
 

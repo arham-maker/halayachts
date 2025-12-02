@@ -2,8 +2,7 @@
 
 const formatSpecValue = (key, value) => {
   if (value === 'Nil' || value === 'null') return value;
-  if (!value) return 'Not specified';
-  
+
   if (key === 'length' || key === 'beam' || key === 'draft') {
     return `${value} ft`;
   }
@@ -36,7 +35,13 @@ const STYLES = {
 export default function SpecificationsSection({ specifications }) {
   if (!specifications) return null;
 
-  const specsArray = Object.entries(specifications);
+  // Show only fields that actually have a value
+  const specsArray = Object.entries(specifications).filter(
+    ([, value]) => value !== undefined && value !== null && value !== ''
+  );
+
+  if (specsArray.length === 0) return null;
+
   const totalItems = specsArray.length;
   const isEvenTotal = totalItems % 2 === 0;
 

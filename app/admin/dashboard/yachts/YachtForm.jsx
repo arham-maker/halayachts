@@ -9,13 +9,14 @@ export default function YachtForm({ yachtId, initialData = null }) {
   const [loading, setLoading] = useState(false);
   const [savingDraft, setSavingDraft] = useState(false);
   const [uploading, setUploading] = useState({});
+  const [locations, setLocations] = useState([]);
+  const [locationsLoading, setLocationsLoading] = useState(true);
   const [formData, setFormData] = useState({
     id: '',
     yacht_id: '',
     title: '',
     name: '',
     slug: '',
-    slugs: [],
     vessel_type: '',
     year: '',
     length: '',
@@ -65,9 +66,43 @@ export default function YachtForm({ yachtId, initialData = null }) {
       zip_code: ''
     },
     prices: [],
-    broker: '',
+    broker: {
+      broker_name: '',
+      broker_description: '',
+      broker_email: '',
+      broker_phone_number: '',
+      broker_image: ''
+    },
     status: 'published' // 'published' or 'draft'
   });
+
+  // Load available locations for dropdown
+  useEffect(() => {
+    let isMounted = true;
+
+    async function fetchLocations() {
+      try {
+        const res = await fetch('/api/locations');
+        if (!res.ok) return;
+        const data = await res.json();
+        if (isMounted) {
+          setLocations(data || []);
+        }
+      } catch (err) {
+        // API already logs errors
+      } finally {
+        if (isMounted) {
+          setLocationsLoading(false);
+        }
+      }
+    }
+
+    fetchLocations();
+
+    return () => {
+      isMounted = false;
+    };
+  }, []);
 
   // Load yacht data if editing
   useEffect(() => {
@@ -90,7 +125,6 @@ export default function YachtForm({ yachtId, initialData = null }) {
           title: yacht.title || '',
           name: yacht.name || '',
           slug: yacht.slug || '',
-          slugs: yacht.slugs || [],
           vessel_type: yacht.vessel_type || '',
           year: yacht.year || '',
           length: yacht.length || '',
@@ -140,7 +174,35 @@ export default function YachtForm({ yachtId, initialData = null }) {
             zip_code: ''
           },
           prices: yacht.prices || [],
-          broker: yacht.broker || '',
+          broker: (() => {
+            if (!yacht.broker) {
+              return {
+                broker_name: '',
+                broker_description: '',
+                broker_email: '',
+                broker_phone_number: '',
+                broker_image: ''
+              };
+            }
+            // Backward compatibility: if broker is a string, treat it as the name
+            if (typeof yacht.broker === 'string') {
+              return {
+                broker_name: yacht.broker,
+                broker_description: '',
+                broker_email: '',
+                broker_phone_number: '',
+                broker_image: ''
+              };
+            }
+            // If broker is already an object, merge with defaults
+            return {
+              broker_name: yacht.broker.broker_name || '',
+              broker_description: yacht.broker.broker_description || '',
+              broker_email: yacht.broker.broker_email || '',
+              broker_phone_number: yacht.broker.broker_phone_number || '',
+              broker_image: yacht.broker.broker_image || ''
+            };
+          })(),
           status: yacht.status || 'published'
         });
       }
@@ -173,6 +235,15 @@ export default function YachtForm({ yachtId, initialData = null }) {
           [specField]: value
         }
       }));
+    } else if (name.startsWith('broker.')) {
+      const brokerField = name.split('.')[1];
+      setFormData(prev => ({
+        ...prev,
+        broker: {
+          ...prev.broker,
+          [brokerField]: value
+        }
+      }));
     } else if (name.startsWith('brochure.')) {
       const brochureField = name.split('.')[1];
       setFormData(prev => ({
@@ -181,6 +252,12 @@ export default function YachtForm({ yachtId, initialData = null }) {
           ...prev.brochure,
           [brochureField]: value
         }
+      }));
+    } else if (name === 'title') {
+      // Only update title here; slug will be auto-generated on blur
+      setFormData(prev => ({
+        ...prev,
+        title: value,
       }));
     } else {
       setFormData(prev => ({
@@ -353,13 +430,18 @@ export default function YachtForm({ yachtId, initialData = null }) {
         if (typeof img === 'string') return { id: 0, original_url: img };
         return img;
       }),
-      slugs: formData.slugs.filter(s => s && s.trim())
     };
   };
 
   const handleSubmit = async (e, status = 'published') => {
     e.preventDefault();
     try {
+      // Require a linked location for new/updated yachts
+      if (!formData.location || !formData.location.id) {
+        alert('Please select a location for this yacht.');
+        return;
+      }
+
       setLoading(true);
       const yachtPayload = preparePayload(status);
 
@@ -508,32 +590,6 @@ export default function YachtForm({ yachtId, initialData = null }) {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div>
                 <label className="block text-sm font-semibold tracking-wide capitalize text-gray-700 mb-2">
-                  ID
-                </label>
-                <input
-                  type="number"
-                  name="id"
-                  value={formData.id}
-                  onChange={handleInputChange}
-                  className="w-full px-4 py-2.5 border border-gray-300 rounded-lg text-sm tracking-wide focus:outline-none focus:ring-2 focus:ring-[#c8a75c] focus:border-transparent transition"
-                  placeholder="e.g., 1"
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-semibold tracking-wide capitalize text-gray-700 mb-2">
-                  Yacht ID
-                </label>
-                <input
-                  type="number"
-                  name="yacht_id"
-                  value={formData.yacht_id}
-                  onChange={handleInputChange}
-                  className="w-full px-4 py-2.5 border border-gray-300 rounded-lg text-sm tracking-wide focus:outline-none focus:ring-2 focus:ring-[#c8a75c] focus:border-transparent transition"
-                  placeholder="e.g., 1"
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-semibold tracking-wide capitalize text-gray-700 mb-2">
                   Title *
                 </label>
                 <input
@@ -541,6 +597,18 @@ export default function YachtForm({ yachtId, initialData = null }) {
                   name="title"
                   value={formData.title}
                   onChange={handleInputChange}
+                  onBlur={() => {
+                    if (!formData.title) return;
+                    const generatedSlug = formData.title
+                      .toLowerCase()
+                      .trim()
+                      .replace(/[^a-z0-9]+/g, '-')
+                      .replace(/(^-|-$)+/g, '');
+                    setFormData(prev => ({
+                      ...prev,
+                      slug: generatedSlug,
+                    }));
+                  }}
                   required
                   className="w-full px-4 py-2.5 border border-gray-300 rounded-lg text-sm tracking-wide focus:outline-none focus:ring-2 focus:ring-[#c8a75c] focus:border-transparent transition"
                   placeholder="e.g., Sirena 88"
@@ -567,10 +635,10 @@ export default function YachtForm({ yachtId, initialData = null }) {
                   type="text"
                   name="slug"
                   value={formData.slug}
-                  onChange={handleInputChange}
+                  readOnly
                   required
-                  className="w-full px-4 py-2.5 border border-gray-300 rounded-lg text-sm tracking-wide focus:outline-none focus:ring-2 focus:ring-[#c8a75c] focus:border-transparent transition"
-                  placeholder="e.g., sirena-88"
+                  className="w-full px-4 py-2.5 border border-gray-300 rounded-lg text-sm tracking-wide bg-gray-50 text-gray-600 focus:outline-none cursor-not-allowed"
+                  placeholder="Auto-generated from title"
                 />
               </div>
               <div>
@@ -780,18 +848,72 @@ export default function YachtForm({ yachtId, initialData = null }) {
                   )}
                 </div>
               </div>
-              <div>
-                <label className="block text-sm font-semibold tracking-wide capitalize text-gray-700 mb-2">
-                  Broker
-                </label>
-                <input
-                  type="text"
-                  name="broker"
-                  value={formData.broker}
-                  onChange={handleInputChange}
-                  className="w-full px-4 py-2.5 border border-gray-300 rounded-lg text-sm tracking-wide focus:outline-none focus:ring-2 focus:ring-[#c8a75c] focus:border-transparent transition"
-                  placeholder="Broker name"
-                />
+              <div className="md:col-span-2 grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
+                  <label className="block text-sm font-semibold tracking-wide capitalize text-gray-700 mb-2">
+                    Broker Name
+                  </label>
+                  <input
+                    type="text"
+                    name="broker.broker_name"
+                    value={formData.broker.broker_name}
+                    onChange={handleInputChange}
+                    className="w-full px-4 py-2.5 border border-gray-300 rounded-lg text-sm tracking-wide focus:outline-none focus:ring-2 focus:ring-[#c8a75c] focus:border-transparent transition"
+                    placeholder="e.g., John Doe"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-semibold tracking-wide capitalize text-gray-700 mb-2">
+                    Broker Email
+                  </label>
+                  <input
+                    type="email"
+                    name="broker.broker_email"
+                    value={formData.broker.broker_email}
+                    onChange={handleInputChange}
+                    className="w-full px-4 py-2.5 border border-gray-300 rounded-lg text-sm tracking-wide focus:outline-none focus:ring-2 focus:ring-[#c8a75c] focus:border-transparent transition"
+                    placeholder="e.g., broker@example.com"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-semibold tracking-wide capitalize text-gray-700 mb-2">
+                    Broker Phone Number
+                  </label>
+                  <input
+                    type="tel"
+                    name="broker.broker_phone_number"
+                    value={formData.broker.broker_phone_number}
+                    onChange={handleInputChange}
+                    className="w-full px-4 py-2.5 border border-gray-300 rounded-lg text-sm tracking-wide focus:outline-none focus:ring-2 focus:ring-[#c8a75c] focus:border-transparent transition"
+                    placeholder="e.g., +1 234 567 890"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-semibold tracking-wide capitalize text-gray-700 mb-2">
+                    Broker Image URL (optional)
+                  </label>
+                  <input
+                    type="text"
+                    name="broker.broker_image"
+                    value={formData.broker.broker_image}
+                    onChange={handleInputChange}
+                    className="w-full px-4 py-2.5 border border-gray-300 rounded-lg text-sm tracking-wide focus:outline-none focus:ring-2 focus:ring-[#c8a75c] focus:border-transparent transition"
+                    placeholder="e.g., /images/broker.jpg"
+                  />
+                </div>
+                <div className="md:col-span-2">
+                  <label className="block text-sm font-semibold tracking-wide capitalize text-gray-700 mb-2">
+                    Broker Description
+                  </label>
+                  <textarea
+                    name="broker.broker_description"
+                    value={formData.broker.broker_description}
+                    onChange={handleInputChange}
+                    rows="3"
+                    className="w-full px-4 py-2.5 border border-gray-300 rounded-lg text-sm tracking-wide focus:outline-none focus:ring-2 focus:ring-[#c8a75c] focus:border-transparent transition resize-y"
+                    placeholder="Short description about the broker"
+                  />
+                </div>
               </div>
               <div className="md:col-span-2">
                 <label className="block text-sm font-semibold tracking-wide capitalize text-gray-700 mb-2">
@@ -811,106 +933,69 @@ export default function YachtForm({ yachtId, initialData = null }) {
 
           {/* Section 2: Location Information */}
           <div className="bg-white p-6 rounded-lg shadow-md border border-gray-100">
-            <h4 className="text-lg font-semibold mb-6 tracking-wider border-b border-gray-200 pb-3 text-gray-800">Location Information</h4>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <h4 className="text-lg font-semibold mb-6 tracking-wider border-b border-gray-200 pb-3 text-gray-800">
+              Location Information
+            </h4>
+            <div className="space-y-4">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2 tracking-wide">Location ID</label>
-                <input
-                  type="number"
-                  name="location.id"
-                  value={formData.location.id}
-                  onChange={handleInputChange}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm tracking-wide focus:outline-none focus:ring-2 focus:ring-[#c8a75c] focus:border-transparent"
-                  placeholder="e.g., 456"
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2 tracking-wide">City</label>
-                <input
-                  type="text"
-                  name="location.city"
-                  value={formData.location.city}
-                  onChange={handleInputChange}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm tracking-wide focus:outline-none focus:ring-2 focus:ring-[#c8a75c] focus:border-transparent"
-                  placeholder="e.g., Nassau, The Bahamas"
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2 tracking-wide">Country Code</label>
-                <input
-                  type="text"
-                  name="location.country_code"
-                  value={formData.location.country_code}
-                  onChange={handleInputChange}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm tracking-wide focus:outline-none focus:ring-2 focus:ring-[#c8a75c] focus:border-transparent"
-                  placeholder="e.g., US"
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2 tracking-wide">Latitude</label>
-                <input
-                  type="text"
-                  name="location.latitude"
-                  value={formData.location.latitude}
-                  onChange={handleInputChange}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm tracking-wide focus:outline-none focus:ring-2 focus:ring-[#c8a75c] focus:border-transparent"
-                  placeholder="e.g., 33.980289"
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2 tracking-wide">Longitude</label>
-                <input
-                  type="text"
-                  name="location.longitude"
-                  value={formData.location.longitude}
-                  onChange={handleInputChange}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm tracking-wide focus:outline-none focus:ring-2 focus:ring-[#c8a75c] focus:border-transparent"
-                  placeholder="e.g., -118.451745"
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2 tracking-wide">Full Name</label>
-                <input
-                  type="text"
-                  name="location.name"
-                  value={formData.location.name}
-                  onChange={handleInputChange}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm tracking-wide focus:outline-none focus:ring-2 focus:ring-[#c8a75c] focus:border-transparent"
-                  placeholder="e.g., Nassau, The Bahamas, CA, United States"
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2 tracking-wide">Short Name</label>
-                <input
-                  type="text"
-                  name="location.short_name"
-                  value={formData.location.short_name}
-                  onChange={handleInputChange}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm tracking-wide focus:outline-none focus:ring-2 focus:ring-[#c8a75c] focus:border-transparent"
-                  placeholder="e.g., Nassau, The Bahamas, CA, United States"
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2 tracking-wide">State Code</label>
-                <input
-                  type="text"
-                  name="location.state_code"
-                  value={formData.location.state_code}
-                  onChange={handleInputChange}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm tracking-wide focus:outline-none focus:ring-2 focus:ring-[#c8a75c] focus:border-transparent"
-                  placeholder="e.g., CA"
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2 tracking-wide">Zip Code</label>
-                <input
-                  type="text"
-                  name="location.zip_code"
-                  value={formData.location.zip_code}
-                  onChange={handleInputChange}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm tracking-wide focus:outline-none focus:ring-2 focus:ring-[#c8a75c] focus:border-transparent"
-                  placeholder="e.g., 90292"
-                />
+                <label className="block text-sm font-medium text-gray-700 mb-2 tracking-wide">
+                  Select Location <span className="text-red-500">*</span>
+                </label>
+                <select
+                  value={formData.location.id || ''}
+                  onChange={(e) => {
+                    const selectedId = e.target.value;
+                    const selectedLoc = locations.find((loc) => loc.id === selectedId);
+                    if (!selectedLoc) {
+                      setFormData((prev) => ({
+                        ...prev,
+                        location: {
+                          id: '',
+                          city: '',
+                          country_code: '',
+                          latitude: '',
+                          longitude: '',
+                          name: '',
+                          short_name: '',
+                          state_code: '',
+                          zip_code: '',
+                        },
+                      }));
+                      return;
+                    }
+                    setFormData((prev) => ({
+                      ...prev,
+                      location: {
+                        ...prev.location,
+                        id: selectedLoc.id,
+                        // Use the title as city/name so front-end location pages can match correctly
+                        city: selectedLoc.title,
+                        name: selectedLoc.title,
+                      },
+                    }));
+                  }}
+                  required
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm tracking-wide focus:outline-none focus:ring-2 focus:ring-[#c8a75c] focus:border-transparent bg-white"
+                >
+                  <option value="" disabled>
+                    {locationsLoading ? 'Loading locations...' : 'Select a location'}
+                  </option>
+                  {locations.map((loc) => (
+                    <option key={loc._id} value={loc.id}>
+                      {loc.title}
+                    </option>
+                  ))}
+                </select>
+                {formData.location.city && (
+                  <p className="mt-1 text-xs text-gray-500 tracking-wide">
+                    This yacht will appear under: <span className="font-semibold">{formData.location.city}</span>
+                  </p>
+                )}
+                {!locationsLoading && locations.length === 0 && (
+                  <p className="mt-1 text-xs text-red-500 tracking-wide">
+                    No locations found. Please create locations first in the Locations Management section.
+                  </p>
+                )}
               </div>
             </div>
           </div>
@@ -951,49 +1036,6 @@ export default function YachtForm({ yachtId, initialData = null }) {
                   )}
                 </div>
               </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2 tracking-wide">File Name</label>
-                <input
-                  type="text"
-                  name="brochure.file_name"
-                  value={formData.brochure.file_name}
-                  onChange={handleInputChange}
-                  className="w-full px-4 py-2.5 border border-gray-300 rounded-lg text-sm tracking-wide focus:outline-none focus:ring-2 focus:ring-[#c8a75c] focus:border-transparent transition"
-                  placeholder="sirena-88-brochure.pdf"
-                />
-              </div>
-            </div>
-          </div>
-
-          {/* Section 4: Additional Slugs */}
-          <div className="bg-white p-6 rounded-lg shadow-md border border-gray-100">
-            <h4 className="text-lg font-semibold mb-6 tracking-wider border-b border-gray-200 pb-3 text-gray-800">Additional Slugs</h4>
-            <div className="space-y-3">
-              {formData.slugs.map((slug, index) => (
-                <div key={index} className="flex gap-3 items-center">
-                  <input
-                    type="text"
-                    value={slug}
-                    onChange={(e) => handleArrayFieldChange('slugs', index, e.target.value)}
-                    className="flex-1 px-4 py-2.5 border border-gray-300 rounded-lg text-sm tracking-wide focus:outline-none focus:ring-2 focus:ring-[#c8a75c] focus:border-transparent transition"
-                    placeholder="Additional slug"
-                  />
-                  <button
-                    type="button"
-                    onClick={() => removeArrayItem('slugs', index)}
-                    className="px-4 py-2.5 text-red-600 text-sm tracking-wide hover:text-red-800 hover:bg-red-50 rounded-lg transition font-medium"
-                  >
-                    Remove
-                  </button>
-                </div>
-              ))}
-              <button
-                type="button"
-                onClick={() => addArrayItem('slugs', '')}
-                className="w-full py-2.5 border-2 border-dashed border-gray-300 rounded-lg text-[#c8a75c] text-sm tracking-wide hover:border-[#c8a75c] hover:bg-[#c8a75c] hover:text-white transition font-medium"
-              >
-                + Add Slug
-              </button>
             </div>
           </div>
 
@@ -1330,7 +1372,7 @@ export default function YachtForm({ yachtId, initialData = null }) {
                 <input
                   type="text"
                   name="specifications.amenities_water_toys"
-                  value={formData.specifications.amenities_water_toys}
+                  value={formData.specifications.amenities_water_toys || ''}
                   onChange={handleInputChange}
                   className="w-full px-4 py-2.5 border border-gray-300 rounded-lg text-sm tracking-wide focus:outline-none focus:ring-2 focus:ring-[#c8a75c] focus:border-transparent transition"
                   placeholder="Water toys description"
