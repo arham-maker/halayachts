@@ -1,33 +1,33 @@
 "use client";
 
-import { useState, useRef, useMemo, useEffect } from 'react';
+import { useState, useRef, useMemo, useEffect } from "react";
 import Banner from "../../components/Banner";
 import YachtCard from "../../components/YachtCard";
 import SearchFilter from "../../components/SearchFilter";
 import { GoArrowRight, GoArrowLeft, GoArrowUpRight } from "react-icons/go";
-import { useSearchParams } from 'next/navigation';
-import PerfectYachtBanner from '../../components/PerfectYachtBanner';
-import Link from 'next/link';
-import LocationCard from '../../components/LocationCard';
-import { clientLogger } from '@/lib/clientLogger';
+import { useSearchParams } from "next/navigation";
+import PerfectYachtBanner from "../../components/PerfectYachtBanner";
+import Link from "next/link";
+import LocationCard from "../../components/LocationCard";
+import { clientLogger } from "@/lib/clientLogger";
 
-// Client-side function that fetches yachts from database 
+// Client-side function that fetches yachts from database
 async function getYachts() {
   try {
-    const response = await fetch('/api/yachts', { 
-      cache: 'no-store',
+    const response = await fetch("/api/yachts", {
+      cache: "no-store",
       headers: {
-        'Content-Type': 'application/json',
+        "Content-Type": "application/json",
       },
     });
-    
+
     if (!response.ok) {
       throw new Error(`Failed to fetch yachts: ${response.status}`);
     }
-    
+
     return await response.json();
   } catch (error) {
-    clientLogger.error('Error fetching yachts:', error);
+    clientLogger.error("Error fetching yachts:", error);
     return [];
   }
 }
@@ -35,20 +35,20 @@ async function getYachts() {
 // Client-side function that fetches locations from database
 async function getLocations(limit = 6) {
   try {
-    const response = await fetch('/api/locations', {  
+    const response = await fetch("/api/locations", {
       headers: {
-        'Content-Type': 'application/json',
+        "Content-Type": "application/json",
       },
     });
-    
+
     if (!response.ok) {
       throw new Error(`Failed to fetch locations: ${response.status}`);
     }
-    
+
     const allLocations = await response.json();
     return allLocations.slice(0, limit);
   } catch (error) {
-    clientLogger.error('Error fetching locations:', error);
+    clientLogger.error("Error fetching locations:", error);
     return [];
   }
 }
@@ -58,7 +58,10 @@ function YachtsLoader() {
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3 gap-8">
       {[...Array(6)].map((_, i) => (
-        <div key={i} className="bg-gray-200 h-96 rounded-lg animate-pulse"></div>
+        <div
+          key={i}
+          className="bg-gray-200 h-96 rounded-lg animate-pulse"
+        ></div>
       ))}
     </div>
   );
@@ -69,7 +72,10 @@ function LocationsLoader() {
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
       {[...Array(6)].map((_, i) => (
-        <div key={i} className="bg-gray-200 h-64 rounded-lg animate-pulse"></div>
+        <div
+          key={i}
+          className="bg-gray-200 h-64 rounded-lg animate-pulse"
+        ></div>
       ))}
     </div>
   );
@@ -79,14 +85,15 @@ function LocationsLoader() {
 function LocationsSection({ locationsData, yachtsData }) {
   const LOCATIONS_GRID_CONFIG = {
     base: "grid-cols-1",
-    md: "md:grid-cols-2", 
-    lg: "lg:grid-cols-3", 
-    gap: "gap-8"
+    md: "md:grid-cols-2",
+    lg: "lg:grid-cols-3",
+    gap: "gap-8",
   };
 
   const Exclusive_Locations = {
     title: "Exclusive Locations",
-    description: "Sail to the world&apos;s most breathtaking destinations, surrounded by the comfort and seclusion of your private yacht. Where every horizon is yours to explore in complete comfort.",
+    description:
+      "Sail to the world&apos;s most breathtaking destinations, surrounded by the comfort and seclusion of your private yacht. Where every horizon is yours to explore in complete comfort.",
     viewMore: {
       text: "View more",
       link: "/location",
@@ -161,7 +168,7 @@ const Pagination = ({
   currentPage,
   totalItems,
   itemsPerPage,
-  onPageChange
+  onPageChange,
 }) => {
   const totalPages = Math.ceil(totalItems / itemsPerPage);
   const startItem = (currentPage - 1) * itemsPerPage + 1;
@@ -176,19 +183,19 @@ const Pagination = ({
     } else {
       if (currentPage <= 3) {
         for (let i = 1; i <= 4; i++) pages.push(i);
-        pages.push('...');
+        pages.push("...");
         pages.push(totalPages);
       } else if (currentPage >= totalPages - 2) {
         pages.push(1);
-        pages.push('...');
+        pages.push("...");
         for (let i = totalPages - 3; i <= totalPages; i++) pages.push(i);
       } else {
         pages.push(1);
-        pages.push('...');
+        pages.push("...");
         pages.push(currentPage - 1);
         pages.push(currentPage);
         pages.push(currentPage + 1);
-        pages.push('...');
+        pages.push("...");
         pages.push(totalPages);
       }
     }
@@ -201,7 +208,9 @@ const Pagination = ({
   return (
     <div className="flex flex-col sm:flex-row justify-between items-center gap-4 w-full">
       <div className="text-base md:text-lg lg:text-xl sm:max-w-[95%] tracking-wider font-light">
-        <span className="font-medium">{startItem} to {endItem}</span>
+        <span className="font-medium">
+          {startItem} to {endItem}
+        </span>
         <span className="mx-1">Yachts of</span>
         <span className="font-medium text-secondary">{totalItems}</span>
       </div>
@@ -220,14 +229,15 @@ const Pagination = ({
           {getPageNumbers().map((page, index) => (
             <button
               key={index}
-              onClick={() => typeof page === 'number' && onPageChange(page)}
-              className={`min-w-[40px] h-10 px-3 rounded-lg border transition-all duration-200 cursor-pointer ${page === currentPage
-                ? 'bg-text-secondary  text-white border-secondary shadow-sm'
-                : page === '...'
-                  ? 'border-transparent cursor-default text-gray-500'
-                  : 'border-gray-300 hover:bg-gray-50 text-gray-700 hover:border-gray-400'
-                }`}
-              disabled={page === '...'}
+              onClick={() => typeof page === "number" && onPageChange(page)}
+              className={`min-w-[40px] h-10 px-3 rounded-lg border transition-all duration-200 cursor-pointer ${
+                page === currentPage
+                  ? "bg-text-secondary  text-white border-secondary shadow-sm"
+                  : page === "..."
+                    ? "border-transparent cursor-default text-gray-500"
+                    : "border-gray-300 hover:bg-gray-50 text-gray-700 hover:border-gray-400"
+              }`}
+              disabled={page === "..."}
             >
               {page}
             </button>
@@ -252,12 +262,12 @@ function CharterPageContent() {
   const searchParams = useSearchParams();
   const [currentPage, setCurrentPage] = useState(1);
   const [filters, setFilters] = useState({
-    location: 'all',
-    duration: 'all',
-    length: 'all',
-    budget: 'all',
-    amenities: 'all',
-    passengers: 'all'
+    location: "all",
+    duration: "all",
+    length: "all",
+    budget: "all",
+    amenities: "all",
+    passengers: "all",
   });
   const [locationsData, setLocationsData] = useState([]);
   const [yachtsData, setYachtsData] = useState([]);
@@ -270,16 +280,16 @@ function CharterPageContent() {
   // URL se filters receive karein
   useEffect(() => {
     const urlFilters = {
-      location: searchParams.get('location') || 'all',
-      duration: searchParams.get('duration') || 'all',
-      length: searchParams.get('length') || 'all',
-      budget: searchParams.get('budget') || 'all',
-      passengers: searchParams.get('passengers') || 'all',
-      amenities: 'all'
+      location: searchParams.get("location") || "all",
+      duration: searchParams.get("duration") || "all",
+      length: searchParams.get("length") || "all",
+      budget: searchParams.get("budget") || "all",
+      passengers: searchParams.get("passengers") || "all",
+      amenities: "all",
     };
 
     // Handle amenities array from URL
-    const amenitiesFromUrl = searchParams.getAll('amenities');
+    const amenitiesFromUrl = searchParams.getAll("amenities");
     if (amenitiesFromUrl.length > 0) {
       urlFilters.amenities = amenitiesFromUrl;
     }
@@ -295,7 +305,7 @@ function CharterPageContent() {
         const data = await getYachts();
         setYachtsData(data);
       } catch (error) {
-        clientLogger.error('Error fetching yachts:', error);
+        clientLogger.error("Error fetching yachts:", error);
         setYachtsData([]);
       } finally {
         setLoadingYachts(false);
@@ -312,7 +322,7 @@ function CharterPageContent() {
         const data = await getLocations(6);
         setLocationsData(data);
       } catch (error) {
-        clientLogger.error('Error fetching locations:', error);
+        clientLogger.error("Error fetching locations:", error);
         setLocationsData([]);
       } finally {
         setLoadingLocations(false);
@@ -323,53 +333,72 @@ function CharterPageContent() {
 
   // Filter logic - Improved with better matching
   const filteredYachts = useMemo(() => {
-    return yachtsData.filter(yacht => {
+    return yachtsData.filter((yacht) => {
       // Location filter - Improved matching
-      if (filters.location !== 'all') {
-        const yachtLocation = yacht.location?.city?.toLowerCase() || '';
-        const yachtCountry = yacht.location?.country?.toLowerCase() || '';
+      if (filters.location !== "all") {
+        const yachtLocation = yacht.location?.city?.toLowerCase() || "";
+        const yachtCountry = yacht.location?.country?.toLowerCase() || "";
         const filterLocation = filters.location.toLowerCase();
 
-        const locationMatch = yachtLocation.includes(filterLocation) ||
+        const locationMatch =
+          yachtLocation.includes(filterLocation) ||
           yachtCountry.includes(filterLocation) ||
-          yachtLocation.replace(/\s+/g, '').includes(filterLocation.replace(/\s+/g, ''));
+          yachtLocation
+            .replace(/\s+/g, "")
+            .includes(filterLocation.replace(/\s+/g, ""));
 
         if (!locationMatch) return false;
       }
 
       // Duration filter - Fixed logic
-      if (filters.duration !== 'all') {
+      if (filters.duration !== "all") {
         const filterDuration = parseInt(filters.duration);
-        const hasMatchingDuration = yacht.prices?.some(price =>
-          price.charter_hours === filterDuration
+        const hasMatchingDuration = yacht.prices?.some(
+          (price) => price.charter_hours === filterDuration
         );
         if (!hasMatchingDuration) return false;
       }
 
       // Length filter - Fixed boundary cases
-      if (filters.length !== 'all') {
+      if (filters.length !== "all") {
         const yachtLength = yacht.length || 0;
-        if (filters.length === '0-50' && yachtLength > 50) return false;
-        if (filters.length === '50-90' && (yachtLength <= 50 || yachtLength > 90)) return false;
-        if (filters.length === '90+' && yachtLength <= 90) return false;
+        if (filters.length === "0-50" && yachtLength > 50) return false;
+        if (
+          filters.length === "50-90" &&
+          (yachtLength <= 50 || yachtLength > 90)
+        )
+          return false;
+        if (filters.length === "90+" && yachtLength <= 90) return false;
       }
 
       // Budget filter - Improved logic
-      if (filters.budget !== 'all') {
+      if (filters.budget !== "all") {
         const minPrice = yacht.prices?.[0]?.retail_cents / 100 || 0;
-        if (filters.budget === '0-5000' && minPrice > 5000) return false;
-        if (filters.budget === '5000-10000' && (minPrice <= 5000 || minPrice > 10000)) return false;
-        if (filters.budget === '10000-15000' && (minPrice <= 10000 || minPrice > 15000)) return false;
+        if (filters.budget === "0-5000" && minPrice > 5000) return false;
+        if (
+          filters.budget === "5000-10000" &&
+          (minPrice <= 5000 || minPrice > 10000)
+        )
+          return false;
+        if (
+          filters.budget === "10000-15000" &&
+          (minPrice <= 10000 || minPrice > 15000)
+        )
+          return false;
       }
 
       // Amenities filter - Fixed logic
-      if (filters.amenities !== 'all' && Array.isArray(filters.amenities) && filters.amenities.length > 0) {
+      if (
+        filters.amenities !== "all" &&
+        Array.isArray(filters.amenities) &&
+        filters.amenities.length > 0
+      ) {
         // Skip if amenities is ['all'] or empty array
-        if (filters.amenities.length === 1 && filters.amenities[0] === 'all') {
+        if (filters.amenities.length === 1 && filters.amenities[0] === "all") {
           // Do nothing, show all yachts
         } else {
-          const yachtAmenities = yacht.amenities?.map(a => a.code) || [];
-          const hasSelectedAmenities = filters.amenities.every(amenity =>
+          const yachtAmenities = yacht.amenities?.map((a) => a.code) || [];
+          const hasSelectedAmenities = filters.amenities.every((amenity) =>
             yachtAmenities.includes(amenity)
           );
           if (!hasSelectedAmenities) return false;
@@ -377,11 +406,11 @@ function CharterPageContent() {
       }
 
       // Passengers filter - Improved logic
-      if (filters.passengers !== 'all') {
+      if (filters.passengers !== "all") {
         const maxPassengers = yacht.guests || 0;
         const filterPassengers = filters.passengers;
 
-        if (filterPassengers === '10+') {
+        if (filterPassengers === "10+") {
           if (maxPassengers < 10) return false;
         } else {
           const passengerNum = parseInt(filterPassengers);
@@ -408,19 +437,17 @@ function CharterPageContent() {
         if (currentScrollY >= sectionTop) {
           window.scrollTo({
             top: sectionTop,
-            behavior: 'smooth'
+            behavior: "smooth",
           });
-        }
-        else if (currentScrollY < 300) {
+        } else if (currentScrollY < 300) {
           window.scrollTo({
             top: 0,
-            behavior: 'smooth'
+            behavior: "smooth",
           });
-        }
-        else {
+        } else {
           window.scrollTo({
             top: currentScrollY,
-            behavior: 'auto'
+            behavior: "auto",
           });
         }
       }
@@ -433,8 +460,12 @@ function CharterPageContent() {
   };
 
   const showNoYachtsMessage = filteredYachts.length === 0 && !loadingYachts;
-  const showYachtGrid = !showNoYachtsMessage && currentYachts.length > 0 && !loadingYachts;
-  const showPagination = !showNoYachtsMessage && filteredYachts.length > itemsPerPage && !loadingYachts;
+  const showYachtGrid =
+    !showNoYachtsMessage && currentYachts.length > 0 && !loadingYachts;
+  const showPagination =
+    !showNoYachtsMessage &&
+    filteredYachts.length > itemsPerPage &&
+    !loadingYachts;
 
   // Show results count
   const resultsCount = filteredYachts.length;
@@ -442,8 +473,8 @@ function CharterPageContent() {
   return (
     <main>
       <Banner
-        mainHeading="Sail Beyond the Ordinary"
-        description="Discover the freedom of the open sea with our bespoke yacht charters. Whether you seek adventure, relaxation, or unforgettable moments with loved ones, we craft every journey to match your vision. Step aboard and let the horizon become your destination."
+        mainHeading="Beyond Ordinary. Beyond Compare."
+        description="Discover the freedom of the open seas with HalaYachts, where every journey embodies style, serenity, and sophistication Whether you are an adventurer, a nature lover, or simply desire cherished moments with loved ones, we ensure each voyage is tailored to your desires"
         showContact={false}
         height="medium"
         backgroundImage="/images/charter_banner.png"
@@ -453,12 +484,13 @@ function CharterPageContent() {
         <div className="max-w-7xl mx-auto px-5 flex flex-col gap-10">
           <div className="flex flex-col gap-5 ">
             <h1 className="text-3xl md:text-5xl lg:text-6xl xl:text-[65px] font-light tracking-wide">
-              Find Your Perfect Yacht
+              Discover Your Ideal Vessel
             </h1>
             <p className="text-base md:text-lg lg:text-xl sm:max-w-[95%] tracking-wider font-light">
-              Browse through our curated fleet to discover the yacht that best suits your needs.
-              Compare sizes, styles, and amenities, then select the vessel that aligns with your
-              vision for the perfect charter experience.
+              Browse through our curated fleet of world-class vessels that
+              represent the best in craftsmanship, comfort, and performance.
+              Filter by size, style, and amenities to select a yacht that aligns
+              with your needs and budget for a one-of-a-kind charter experience.
             </p>
           </div>
 
@@ -472,7 +504,7 @@ function CharterPageContent() {
           {/* Results Count */}
           {!loadingYachts && !showNoYachtsMessage && (
             <div className="text-base md:text-lg lg:text-xl tracking-wider font-light">
-              <span className="font-medium">{resultsCount}</span> Yachts Found 
+              <span className="font-medium">{resultsCount}</span> Yachts Found
             </div>
           )}
 
@@ -484,7 +516,7 @@ function CharterPageContent() {
           ) : showYachtGrid ? (
             <>
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3 gap-8">
-                {currentYachts.map(yacht => (
+                {currentYachts.map((yacht) => (
                   <YachtCard key={yacht.id} yacht={yacht} />
                 ))}
               </div>
@@ -514,9 +546,9 @@ function CharterPageContent() {
       </section>
 
       <PerfectYachtBanner
-        heading="Explore Luxury locations"
-        text="Discover the finest yachts for your next adventure"
-        buttonText="Explore Now"
+        heading="Explore Luxury Locations"
+        text="Discover the finest yachts for Hala Yachts for your next adventures."
+        buttonText="View More Destinations"
         buttonLink="/location"
       />
 
@@ -530,7 +562,10 @@ function CharterPageContent() {
                   Exclusive Locations
                 </h1>
                 <p className="text-base md:text-lg lg:text-xl xl:max-w-5xl tracking-wider font-light text-gray-700">
-                  Sail to the world&apos;s most breathtaking destinations, surrounded by the comfort and seclusion of your private yacht. Where every horizon is yours to explore in complete comfort.
+                  Set sail to the world’s most iconic locations with HalaYachts.
+                  From the glimmering harbors of Dubai to the sun-soaked coasts
+                  of the Americas, every voyage invites you to indulge in
+                  absolute comfort, privacy, and joy.
                 </p>
               </div>
               <div className="lg:self-center">
@@ -547,7 +582,10 @@ function CharterPageContent() {
           </div>
         </section>
       ) : (
-        <LocationsSection locationsData={locationsData} yachtsData={yachtsData} />
+        <LocationsSection
+          locationsData={locationsData}
+          yachtsData={yachtsData}
+        />
       )}
     </main>
   );

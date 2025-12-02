@@ -6,8 +6,8 @@ import 'react-toastify/dist/ReactToastify.css';
 import { FaSpinner } from 'react-icons/fa';
 
 const Newsletter = ({
-  heading = "Subscribe to Our Luxury Newsletter",
-  description = "Be the first to discover new yacht arrivals, exclusive destinations, and luxury travel insights from Hala Yachts.",
+  heading = "Subscribe to Our Newsletter. ",
+  description = "Be the first to know about new yacht arrivals, exclusive locations, and limited-time charter offers. Subscribe to Our Newsletter. ",
   inputPlaceholder = "Enter your email address here...",
   buttonText = "Join Now",
   loadingText = "Subscribing...",
