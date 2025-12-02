@@ -281,6 +281,50 @@ export default function YachtForm({ yachtId, initialData = null }) {
     }
   };
 
+  const handleBrochureUpload = async (file) => {
+    if (!file) return;
+
+    const uploadKey = 'brochure';
+    try {
+      setUploading(prev => ({ ...prev, [uploadKey]: true }));
+
+      const uploadFormData = new FormData();
+      uploadFormData.append('file', file);
+
+      const response = await fetch('/api/upload', {
+        method: 'POST',
+        body: uploadFormData,
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({ error: 'Failed to upload file' }));
+        throw new Error(errorData.error || errorData.details || 'Failed to upload file');
+      }
+
+      const result = await response.json();
+
+      if (result.success) {
+        setFormData(prev => ({
+          ...prev,
+          brochure: {
+            ...prev.brochure,
+            file_path: result.filePath,
+            file_name: file.name || prev.brochure.file_name,
+          },
+        }));
+      } else {
+        const errorMsg = result.error || result.details || 'Failed to upload file';
+        alert(errorMsg);
+      }
+    } catch (error) {
+      console.error('Error uploading brochure:', error);
+      const errorMsg = error.message || 'Error uploading brochure. Please check the console for details.';
+      alert(errorMsg);
+    } finally {
+      setUploading(prev => ({ ...prev, [uploadKey]: false }));
+    }
+  };
+
   const preparePayload = (status) => {
     return {
       ...formData,
@@ -877,14 +921,35 @@ export default function YachtForm({ yachtId, initialData = null }) {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2 tracking-wide">File Path</label>
-                <input
-                  type="text"
-                  name="brochure.file_path"
-                  value={formData.brochure.file_path}
-                  onChange={handleInputChange}
-                  className="w-full px-4 py-2.5 border border-gray-300 rounded-lg text-sm tracking-wide focus:outline-none focus:ring-2 focus:ring-[#c8a75c] focus:border-transparent transition"
-                  placeholder="/images/sirena-88.pdf"
-                />
+                <div className="space-y-2">
+                  <div className="flex gap-2">
+                    <input
+                      type="text"
+                      name="brochure.file_path"
+                      value={formData.brochure.file_path}
+                      readOnly
+                      className="flex-1 px-4 py-2.5 border border-gray-300 rounded-lg text-sm tracking-wide bg-gray-50 focus:outline-none cursor-not-allowed"
+                      placeholder="Upload brochure file (PDF)"
+                    />
+                    <label className="px-4 py-2 bg-[#c8a75c] text-white rounded-lg text-sm tracking-wide hover:bg-[#b8974c] transition cursor-pointer inline-flex items-center">
+                      <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" />
+                      </svg>
+                      {uploading['brochure'] ? 'Uploading...' : 'Upload'}
+                      <input
+                        type="file"
+                        accept="application/pdf"
+                        onChange={(e) => handleBrochureUpload(e.target.files[0])}
+                        className="hidden"
+                      />
+                    </label>
+                  </div>
+                  {formData.brochure.file_path && (
+                    <p className="text-xs text-gray-500 tracking-wide break-all">
+                      Stored path: {formData.brochure.file_path}
+                    </p>
+                  )}
+                </div>
               </div>
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2 tracking-wide">File Name</label>
