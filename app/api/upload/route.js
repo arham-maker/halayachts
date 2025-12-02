@@ -48,20 +48,35 @@ export async function POST(request) {
       );
     }
 
-    // Validate file type
-    const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp'];
+    // Validate file type (images + PDFs for brochures)
+    const allowedTypes = [
+      'image/jpeg',
+      'image/jpg',
+      'image/png',
+      'image/webp',
+      'application/pdf',
+    ];
     if (!allowedTypes.includes(file.type)) {
       return NextResponse.json(
-        { error: 'Only JPEG, PNG, and WebP images are allowed' },
+        { error: 'Only JPEG, PNG, WebP images and PDF files are allowed' },
         { status: 400 }
       );
     }
 
-    // Validate file size (max 5MB)
-    const maxSize = 5 * 1024 * 1024;
+    // Validate file size
+    // - Images: up to 5MB
+    // - PDFs (brochures): up to 15MB
+    const maxSize =
+      file.type === 'application/pdf'
+        ? 15 * 1024 * 1024
+        : 5 * 1024 * 1024;
+
     if (file.size > maxSize) {
       return NextResponse.json(
-        { error: 'File size must be less than 5MB' },
+        { error: file.type === 'application/pdf'
+            ? 'PDF file size must be less than 15MB'
+            : 'Image file size must be less than 5MB'
+        },
         { status: 400 }
       );
     }
