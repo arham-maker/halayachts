@@ -25,15 +25,15 @@ const LOCATIONS_GRID_CONFIG = {
 const Curated_Global_Ports = {
   title: "Curated Global Ports",
   description:
-    "Every port in our network has been selected for its charm, accessibility, and experience. Each marina offers world-class facilities and a gateway to adventure."
+    "Each destination in our portfolio has been handpicked for its visual charm, cultural appeal, and unique features of its waters. We ensure your voyage begins and ends with the highest standards of marine excellence."
 };
 
 const FLEET_SECTION = {
   title: "Featured Yachts",
   description:
-    "Discover the art of yachting with our featured collection, where luxury meets precision. From modern superyachts to timeless classics, every vessel reflects excellence and effortless sophistication.",
+    "Each yacht in our featured collection is a masterpiece of design and performance, offering unrivaled sophistication, privacy, and comfort on every voyage.",
   viewMore: {
-    text: "View more",
+    text: "View the Collection",
     link: "/charter",
   },
 };
@@ -41,7 +41,7 @@ const FLEET_SECTION = {
 const Design_Routes = {
   title: "Design Your Own Route",
   description:
-    "Your journey doesn't have to follow a map, it follows your imagination. Combine multiple destinations, request a bespoke route, or allow our team to curate the perfect itinerary, from coastal Europe to the Caribbean and beyond.",
+    "With HalaYachts, we let you go wherever your heart takes you. Combine breathtaking destinations across continents or let our experts craft a bespoke itinerary tailored to your pace, passions, and purpose",
   viewMore: {
     text: "About Us",
     link: "/about",
@@ -54,7 +54,7 @@ import { getApiUrl } from '@/lib/utils';
 async function getYachts(limit = null) {
   try {
     const apiUrl = await getApiUrl('/api/yachts');
-    
+
     const response = await fetch(apiUrl, {
       cache: 'no-store',
       headers: {
@@ -79,7 +79,7 @@ async function getYachts(limit = null) {
 async function getLocations() {
   try {
     const apiUrl = await getApiUrl('/api/locations');
-    
+
     const response = await fetch(apiUrl, {
       cache: 'no-store',
       headers: {
@@ -128,8 +128,8 @@ export default async function Location() {
   return (
     <>
       <Banner
-        mainHeading="Explore the World's Most Exquisite Waters"
-        description="Get ready to embark on a voyage that will fascinate and excite you to the core. Whether you are drawn to the pulsating nightlife, the serenity of pure nature, or the privacy of an exclusive escape, HalaYachts unlocks the door to the world's most enchanting waters."
+        mainHeading="Explore the World’s Most Exquisite Waters"
+        description="Get ready to embark on a voyage that will fascinate and excite you to the core. Whether you are drawn to the pulsating nightlife, the serenity of pure nature, or the privacy of an exclusive escape, HalaYachts unlocks the door to the world’s most enchanting waters. We craft journeys that speak of luxury and pure indulgence as you glide along the French Riviera, drift through the serene marinas in Miami, or discover hidden gems across Arabian coasts. "
         showContact={false}
         height="medium"
         backgroundImage="/images/location.png"
@@ -196,7 +196,11 @@ export default async function Location() {
         </div>
       </section>
 
-      <PerfectYachtBanner />
+      <PerfectYachtBanner
+        heading="Find Your Perfect Yacht"
+        text="Browse our exclusive collection of superyachts and plan your next luxury voyage with the world’s most reliable yachting specialists."
+        buttonText="Discover. Dream. Sail."
+        buttonLink="/charter" />
 
       {/* Featured Yachts Section */}
       <section className="lg:py-24 py-8">
