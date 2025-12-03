@@ -82,14 +82,14 @@ const Community = () => {
               <div className='flex flex-col gap-6'>
                 {/* Mobile - Smaller Heading */}
                 <h2 className="text-3xl md:text-6xl lg:text-6xl xl:text-[65px] font-light tracking-wide">
-                  From our community.
+               From Our Community
                 </h2>
 
                 {/* Mobile - Smaller Text */}
                 <p className="text-base md:text-lg lg:text-xl sm:max-w-5xl leading-relaxed tracking-wider font-light">
-                  Luxury experienced, stories shared.
+                Luxury experienced, stories shared.
                   <br className="hidden sm:block" />
-                 Hear from those who’ve experienced first-hand the art of effortless travel with Halayachts 
+                  Hear from those who’ve experienced first-hand the art of effortless travel with HalaYachts. 
                 </p>
               </div>
             </motion.div>

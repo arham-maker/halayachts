@@ -31,8 +31,8 @@ const Footer = () => {
   ];
 
   const LEGAL_LINKS = [
-    { name: "Privacy Policy", href: "/" },
-    { name: "Terms of Service", href: "/" }
+    { name: "Privacy Policy", href: "/privacy-policy" },
+    { name: "Terms of Service", href: "/terms-of-service" }
   ];
 
   const SOCIAL_LINKS = [

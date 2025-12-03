@@ -164,7 +164,7 @@ const Header = () => {
                 </Link>
               </div>
 
-              <nav className="hidden md:flex items-center space-x-8">
+              <nav className="hidden lg:flex items-center space-x-8">
                 {navItems.map((item) => (
                   <Link
                     key={item.name}
@@ -176,7 +176,7 @@ const Header = () => {
                 ))}
               </nav>
 
-              <div className="hidden md:block">
+              <div className="hidden lg:block">
                 <button 
                   onClick={handleContactClick}
                   className="bg-text-primary text-base text-white p-3 tracking-wide md:text-base font-medium rounded cursor-pointer hover:bg-opacity-90 transition duration-300"
@@ -185,7 +185,7 @@ const Header = () => {
                 </button>
               </div>
 
-              <div className="flex items-center gap-4 md:hidden">
+              <div className="flex items-center gap-4 lg:hidden">
                 <button
                   onClick={handleMenuToggle}
                   className="text-white hover:text-gray-300 transition duration-300 z-60"
@@ -201,7 +201,7 @@ const Header = () => {
             {isMenuOpen && (
               <>
                 <motion.div
-                  className="fixed inset-0 bg-black/60 z-40 md:hidden"
+                  className="fixed inset-0 bg-black/60 z-40 lg:hidden"
                   initial="closed"
                   animate="open"
                   exit="closed"
@@ -211,7 +211,7 @@ const Header = () => {
 
                 {/* Menu Panel */}
                 <motion.div
-                  className="fixed top-0 right-0 bottom-0 w-64 bg-black/95 backdrop-blur-md z-50 md:hidden shadow-2xl flex flex-col"
+                  className="fixed top-0 right-0 bottom-0 w-64 bg-black/95 backdrop-blur-md z-50 lg:hidden shadow-2xl flex flex-col"
                   initial="closed"
                   animate="open"
                   exit="closed"

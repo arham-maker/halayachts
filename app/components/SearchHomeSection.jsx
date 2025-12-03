@@ -32,8 +32,8 @@ function HomeSearchSectionLoader() {
 function HomeSearchSectionContent({
   heading = "2,000+ Yachts for Charter Worldwide",
   description = [
-    "Choose your dream destination and signature style.",
-    " We’ll craft a bespoke yachting experience exclusively for you."
+    "Choose your dream destination and other preferences for your dream vacation.",
+    " We’ll craft a bespoke yachting experience exclusively for you. Discover Your Charter."
   ],
   showDivider = true,
   className = "",
@@ -157,7 +157,7 @@ function HomeSearchSectionContent({
 
   return (
     <section
-      className={`2xl:pt-64 2xl:pb-36 lg:pb-5 lg:py-24 py-8 px-5 xl:relative ${className}`}
+      className={`2xl:pt-64 2xl:pb-24 lg:pb-5 lg:py-24 py-8 px-5 xl:relative ${className}`}
       aria-labelledby="section-heading"
     >
       {/* Custom CSS for toast width - Better approach */}

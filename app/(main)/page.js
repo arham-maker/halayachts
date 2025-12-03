@@ -6,6 +6,7 @@ import { GoArrowUpRight } from "react-icons/go";
 import Link from "next/link";
 import SearchHomeSection from "../components/SearchHomeSection";
 import LocationCard from "../components/LocationCard";
+import LuxuryJourney from '../components/LuxuryJourney';
 
 function SearchSectionLoader() {
   return <div className="h-40 bg-gray-100 animate-pulse rounded-lg"></div>;
@@ -55,13 +56,13 @@ const LOCATIONS_GRID_CONFIG = {
 };
 
 const HERO_CONTENT = {
-  smallHeading: "Hala Yachts: Redefining Luxury on Water",
+  smallHeading: "HalaYachts: Redefining the Art of Luxury at Sea",
   mainHeading: "Exclusive Yacht Voyages",
   description:
-    "At Hala Yachts, we are driven to provide you with the best of luxury travel in yachting. Whether you seek a serene coastal escape or an extended voyage across the world's most coveted waters, we craft experiences as limitless and refined as the sea itself.",
+    "At HalaYachts, we are driven to provide you with the best of luxury travel in yachting. Whether you seek a serene coastal escape or an extended voyage across the world’s most coveted waters, we craft experiences as limitless and refined as the sea itself.",
   cta: {
     showButton: true,
-    buttonText: "Book Now",
+    buttonText: "Inquire Now",
     buttonLink: "/charter",
   },
   showContact: true,
@@ -78,9 +79,9 @@ const FLEET_SECTION = {
 };
 
 const Exclusive_Locations = {
-  title: "Exclusive Locations",
+  title: "Explore Exclusive Locations",
   description:
-    "Sail to the world's most breathtaking destinations, surrounded by the comfort and seclusion of your private yacht. Where every horizon is yours to explore in complete comfort.",
+    "Sail to the world’s most captivating destinations, wrapped in the comfort and privacy of your personal yacht. Get ready to discover the world’s most iconic marinas. ",
   viewMore: {
     text: "View more",
     link: "/location",
@@ -271,6 +272,7 @@ export default function Home() {
       <Suspense fallback={<SearchSectionLoader />}>
         <SearchHomeSection />
       </Suspense>
+      <LuxuryJourney /> 
 
       {/* Yachts Section with Suspense */}
       <Suspense
