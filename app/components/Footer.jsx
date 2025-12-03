@@ -32,7 +32,7 @@ const Footer = () => {
 
   const LEGAL_LINKS = [
     { name: "Privacy Policy", href: "/privacy-policy" },
-    { name: "Terms of Service", href: "/terms-of-service" }
+    { name: "Terms of Service", href: "/terms-and-services" }
   ];
 
   const SOCIAL_LINKS = [
