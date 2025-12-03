@@ -36,7 +36,7 @@ export default function YachtCard({ yacht }) {
                         alt={title}
                         fill
                         sizes="(max-width: 768px) 100vw, 33vw"
-                        className="object-cover transition-transform"
+                        className="object-none transition-transform"
                     />
                 </div>
 
