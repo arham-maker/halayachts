@@ -66,6 +66,8 @@ export default function YachtForm({ yachtId, initialData = null }) {
       state_code: '',
       zip_code: ''
     },
+    // For admin UI multi-select; not sent to backend payload
+    location_ids: [],
     prices: [],
     broker: {
       broker_name: '',
@@ -174,6 +176,7 @@ export default function YachtForm({ yachtId, initialData = null }) {
             state_code: '',
             zip_code: ''
           },
+          location_ids: yacht.location_ids || (yacht.location && yacht.location.id ? [String(yacht.location.id)] : []),
           prices: yacht.prices || [],
           broker: (() => {
             if (!yacht.broker) {
@@ -447,8 +450,10 @@ export default function YachtForm({ yachtId, initialData = null }) {
   };
 
   const preparePayload = (status) => {
+    const { location_ids, ...rest } = formData;
+
     return {
-      ...formData,
+      ...rest,
       status,
       id: formData.id ? parseInt(formData.id) : undefined,
       yacht_id: formData.yacht_id ? parseInt(formData.yacht_id) : undefined,
@@ -466,14 +471,25 @@ export default function YachtForm({ yachtId, initialData = null }) {
       },
       prices: formData.prices.filter(p => p && Object.keys(p).length > 0),
       amenities: formData.amenities.filter(a => a && (a.name || a.code)),
-      images: formData.images.filter(img => {
-        if (typeof img === 'string') return img.trim();
-        if (typeof img === 'object' && img) return img.original_url || img.id;
-        return false;
-      }).map(img => {
-        if (typeof img === 'string') return { id: 0, original_url: img };
-        return img;
-      }),
+      images: formData.images
+        .filter(img => {
+          if (typeof img === 'string') return img.trim();
+          if (typeof img === 'object' && img) return img.original_url || img.id;
+          return false;
+        })
+        .map((img, index) => {
+          // Always ensure a stable, sequential ID for gallery images
+          const normalizedId = index + 1;
+
+          if (typeof img === 'string') {
+            return { id: normalizedId, original_url: img };
+          }
+
+          return {
+            id: img.id || normalizedId,
+            original_url: img.original_url,
+          };
+        }),
     };
   };
 
@@ -561,6 +577,17 @@ export default function YachtForm({ yachtId, initialData = null }) {
     }
   };
 
+  // Derive selected location titles for nicer UI display
+  const selectedLocationTitles =
+    (formData.location_ids && formData.location_ids.length > 0
+      ? locations.filter((loc) =>
+          formData.location_ids.includes(String(loc.id))
+        ).map((loc) => loc.title)
+      : formData.location && formData.location.city
+        ? [formData.location.city]
+        : []
+    ).filter(Boolean);
+
   if (loading && yachtId && yachtId !== 'new') {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gray-50">
@@ -629,7 +656,7 @@ export default function YachtForm({ yachtId, initialData = null }) {
           </div>
 
           {/* Section 1: Basic Information */}
-          <div className="bg-white p-6 rounded-lg shadow-md border border-gray-100">
+          <div className="bg-white p-6 rounded-lg shadow-md border border-gray-100 flex flex-col gap-5">
             <h4 className="text-lg font-semibold mb-6 tracking-wider border-b border-gray-200 pb-3 text-gray-800">Basic Information</h4>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div>
@@ -1000,19 +1027,37 @@ export default function YachtForm({ yachtId, initialData = null }) {
             <h4 className="text-lg font-semibold mb-6 tracking-wider border-b border-gray-200 pb-3 text-gray-800">
               Location Information
             </h4>
-            <div className="space-y-4">
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2 tracking-wide">
-                  Select Location <span className="text-red-500">*</span>
-                </label>
+            <div className="space-y-4 mt-5">
+              <div className="space-y-2">
+                <div className="flex items-center justify-between">
+                  <label className="block text-sm font-semibold text-gray-800 tracking-wide">
+                    Select Location <span className="text-red-500">*</span>
+                  </label>
+                  {selectedLocationTitles.length > 0 && (
+                    <span className="text-sm px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-100 tracking-wider">
+                      {selectedLocationTitles.length} selected
+                    </span>
+                  )}
+                </div>
                 <select
-                  value={formData.location.id || ''}
+                  multiple
+                  value={
+                    (formData.location_ids && formData.location_ids.length
+                      ? formData.location_ids
+                      : formData.location.id
+                        ? [String(formData.location.id)]
+                        : []
+                    ).map(String)
+                  }
                   onChange={(e) => {
-                    const selectedId = e.target.value;
-                    const selectedLoc = locations.find((loc) => String(loc.id) === selectedId);
-                    if (!selectedLoc) {
+                    const selectedValues = Array.from(e.target.selectedOptions).map(
+                      (opt) => opt.value
+                    );
+
+                    if (!selectedValues.length) {
                       setFormData((prev) => ({
                         ...prev,
+                        location_ids: [],
                         location: {
                           id: '',
                           city: '',
@@ -1027,8 +1072,23 @@ export default function YachtForm({ yachtId, initialData = null }) {
                       }));
                       return;
                     }
+
+                    const primaryId = selectedValues[0];
+                    const selectedLoc = locations.find(
+                      (loc) => String(loc.id) === primaryId
+                    );
+
+                    if (!selectedLoc) {
+                      setFormData((prev) => ({
+                        ...prev,
+                        location_ids: selectedValues,
+                      }));
+                      return;
+                    }
+
                     setFormData((prev) => ({
                       ...prev,
+                      location_ids: selectedValues,
                       location: {
                         ...prev.location,
                         id: selectedLoc.id,
@@ -1041,20 +1101,39 @@ export default function YachtForm({ yachtId, initialData = null }) {
                     }));
                   }}
                   required
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm tracking-wide focus:outline-none focus:ring-2 focus:ring-[#c8a75c] focus:border-transparent bg-white"
+                   className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm tracking-wide focus:outline-none focus:ring-2 focus:ring-[#c8a75c] focus:border-transparent bg-white/80 hover:border-[#c8a75c] transition  overflow-y-hidden"
                 >
-                  <option value="" disabled>
-                    {locationsLoading ? 'Loading locations...' : 'Select a location'}
-                  </option>
+                  {!locationsLoading && (
+                    <option value="" disabled>
+                      Select one or more locations
+                    </option>
+                  )}
+                  {locationsLoading && (
+                    <option value="" disabled>
+                      Loading locations...
+                    </option>
+                  )}
                   {locations.map((loc) => (
                     <option key={loc._id} value={loc.id}>
                       {loc.title}
                     </option>
                   ))}
                 </select>
+                {selectedLocationTitles.length > 0 && (
+                  <div className="flex flex-wrap gap-1.5 mt-1">
+                    {selectedLocationTitles.map((title) => (
+                      <span
+                        key={title}
+                        className="inline-flex items-center px-2.5 py-1 rounded-full text-[11px] font-medium bg-[#f7f3e5] text-gray-800 border border-[#e3d6ad]"
+                      >
+                        {title}
+                      </span>
+                    ))}
+                  </div>
+                )}
                 {formData.location.city && (
                   <p className="mt-1 text-xs text-gray-500 tracking-wide">
-                    This yacht will appear under: <span className="font-semibold">{formData.location.city}</span>
+                    Primary location: <span className="font-semibold">{formData.location.city}</span>
                   </p>
                 )}
                 {!locationsLoading && locations.length === 0 && (
@@ -1104,7 +1183,7 @@ export default function YachtForm({ yachtId, initialData = null }) {
           </div>
 
           {/* Section 3: Brochure */}
-          <div className="bg-white p-6 rounded-lg shadow-md border border-gray-100">
+          <div className="bg-white p-6 rounded-lg shadow-md border border-gray-100 flex flex-col gap-5">
             <h4 className="text-lg font-semibold mb-6 tracking-wider border-b border-gray-200 pb-3 text-gray-800">Brochure</h4>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div>
@@ -1143,7 +1222,7 @@ export default function YachtForm({ yachtId, initialData = null }) {
           </div>
 
           {/* Section 5: Prices */}
-          <div className="bg-white p-6 rounded-lg shadow-md border border-gray-100">
+          <div className="bg-white p-6 rounded-lg shadow-md border border-gray-100 flex flex-col gap-5">
             <h4 className="text-lg font-semibold mb-6 tracking-wider border-b border-gray-200 pb-3 text-gray-800">Pricing Information</h4>
             <div className="space-y-4">
               {formData.prices.map((price, index) => (
@@ -1258,7 +1337,7 @@ export default function YachtForm({ yachtId, initialData = null }) {
           </div>
 
           {/* Section 6: Amenities */}
-          <div className="bg-white p-6 rounded-lg shadow-md border border-gray-100">
+          <div className="bg-white p-6 rounded-lg shadow-md border border-gray-100 flex flex-col gap-5">
             <h4 className="text-lg font-semibold mb-6 tracking-wider border-b border-gray-200 pb-3 text-gray-800">Amenities</h4>
             <div className="space-y-4">
               {formData.amenities.map((amenity, index) => (
@@ -1305,7 +1384,7 @@ export default function YachtForm({ yachtId, initialData = null }) {
           </div>
 
           {/* Section 7: Gallery Images */}
-          <div className="bg-white p-6 rounded-lg shadow-md">
+          <div className="bg-white p-6 rounded-lg shadow-md flex flex-col gap-5">
             <h4 className="text-lg font-semibold mb-4 tracking-wider border-b border-gray-200 pb-2 text-gray-800">Gallery Images</h4>
             <div className="space-y-4">
               {formData.images.map((img, index) => (
@@ -1315,10 +1394,10 @@ export default function YachtForm({ yachtId, initialData = null }) {
                       <label className="block text-sm font-medium text-gray-700 mb-2 tracking-wide">Image ID</label>
                       <input
                         type="number"
-                        value={typeof img === 'object' ? (img.id || '') : ''}
-                        onChange={(e) => handleArrayFieldChange('images', index, typeof img === 'string' ? { id: parseInt(e.target.value) || 0, original_url: '' } : { ...img, id: parseInt(e.target.value) || 0 })}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm tracking-wide focus:outline-none focus:ring-2 focus:ring-[#c8a75c] focus:border-transparent"
-                        placeholder="e.g., 1"
+                        value={index + 1}
+                        disabled
+                        className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm tracking-wide bg-gray-50 text-gray-500 cursor-not-allowed"
+                        placeholder="Auto-generated"
                       />
                     </div>
                     <div>
@@ -1385,7 +1464,7 @@ export default function YachtForm({ yachtId, initialData = null }) {
           </div>
 
           {/* Section 8: Specifications */}
-          <div className="bg-white p-6 rounded-lg shadow-md border border-gray-100">
+          <div className="bg-white p-6 rounded-lg shadow-md border border-gray-100 flex flex-col gap-5">
             <h4 className="text-lg font-semibold mb-6 tracking-wider border-b border-gray-200 pb-3 text-gray-800">Specifications</h4>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               <div>
