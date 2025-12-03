@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
+import LocationMap from '@/app/components/LocationMap';
 
 export default function YachtForm({ yachtId, initialData = null }) {
   const router = useRouter();
@@ -945,7 +946,7 @@ export default function YachtForm({ yachtId, initialData = null }) {
                   value={formData.location.id || ''}
                   onChange={(e) => {
                     const selectedId = e.target.value;
-                    const selectedLoc = locations.find((loc) => loc.id === selectedId);
+                    const selectedLoc = locations.find((loc) => String(loc.id) === selectedId);
                     if (!selectedLoc) {
                       setFormData((prev) => ({
                         ...prev,
@@ -971,6 +972,8 @@ export default function YachtForm({ yachtId, initialData = null }) {
                         // Use the title as city/name so front-end location pages can match correctly
                         city: selectedLoc.title,
                         name: selectedLoc.title,
+                        latitude: selectedLoc.latitude ?? '',
+                        longitude: selectedLoc.longitude ?? '',
                       },
                     }));
                   }}
@@ -997,6 +1000,43 @@ export default function YachtForm({ yachtId, initialData = null }) {
                   </p>
                 )}
               </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2 tracking-wide">
+                    Latitude
+                  </label>
+                  <input
+                    type="number"
+                    step="any"
+                    name="location.latitude"
+                    value={formData.location.latitude ?? ''}
+                    onChange={handleInputChange}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm tracking-wide focus:outline-none focus:ring-2 focus:ring-[#c8a75c] focus:border-transparent"
+                    placeholder="e.g., 25.2048"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2 tracking-wide">
+                    Longitude
+                  </label>
+                  <input
+                    type="number"
+                    step="any"
+                    name="location.longitude"
+                    value={formData.location.longitude ?? ''}
+                    onChange={handleInputChange}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm tracking-wide focus:outline-none focus:ring-2 focus:ring-[#c8a75c] focus:border-transparent"
+                    placeholder="e.g., 55.2708"
+                  />
+                </div>
+              </div>
+
+              {formData.location.latitude && formData.location.longitude && (
+                <div className="mt-6">
+                  <LocationMap location={formData.location} />
+                </div>
+              )}
             </div>
           </div>
 
@@ -1057,12 +1097,40 @@ export default function YachtForm({ yachtId, initialData = null }) {
                       />
                     </div>
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2 tracking-wide">Retail Cents</label>
+                      <label className="block text-sm font-medium text-gray-700 mb-2 tracking-wide">Price</label>
                       <input
-                        type="number"
-                        placeholder="e.g., 250000"
-                        value={price.retail_cents || ''}
-                        onChange={(e) => handleArrayFieldChange('prices', index, { ...price, retail_cents: parseInt(e.target.value) || 0 })}
+                        type="text"
+                        placeholder="e.g., 2500"
+                        value={
+                          price.retail_cents_display ??
+                          (price.retail_cents
+                            ? (price.retail_cents / 100).toLocaleString()
+                            : '')
+                        }
+                        onChange={(e) => {
+                          const raw = e.target.value.replace(/,/g, '');
+                          if (!raw) {
+                            handleArrayFieldChange('prices', index, {
+                              ...price,
+                              retail_cents: 0,
+                              retail_cents_display: '',
+                            });
+                            return;
+                          }
+                          const numeric = parseInt(raw, 10);
+                          if (Number.isNaN(numeric)) {
+                            handleArrayFieldChange('prices', index, {
+                              ...price,
+                              retail_cents_display: e.target.value,
+                            });
+                            return;
+                          }
+                          handleArrayFieldChange('prices', index, {
+                            ...price,
+                            retail_cents: numeric * 100,
+                            retail_cents_display: numeric.toLocaleString(),
+                          });
+                        }}
                         className="w-full px-4 py-2.5 border border-gray-300 rounded-lg text-sm tracking-wide focus:outline-none focus:ring-2 focus:ring-[#c8a75c] focus:border-transparent transition"
                       />
                     </div>
