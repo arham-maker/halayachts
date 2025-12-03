@@ -274,7 +274,7 @@ function CharterPageContent() {
   const [loadingLocations, setLoadingLocations] = useState(true);
   const [loadingYachts, setLoadingYachts] = useState(true);
 
-  const itemsPerPage = 12;
+  const itemsPerPage = 45;
   const yachtGridRef = useRef(null);
 
   // URL se filters receive karein
@@ -455,8 +455,30 @@ function CharterPageContent() {
   };
 
   const handleFilterChange = (newFilters) => {
-    setFilters(newFilters);
-    setCurrentPage(1); // Reset to first page when filters change
+    setFilters((prev) => {
+      // If filters are effectively unchanged, don't reset the page
+      const keys = Object.keys(prev);
+      const isSame = keys.every((key) => {
+        const prevVal = prev[key];
+        const nextVal = newFilters[key];
+
+        if (Array.isArray(prevVal) || Array.isArray(nextVal)) {
+          const prevArr = Array.isArray(prevVal) ? prevVal : prevVal ? [prevVal] : [];
+          const nextArr = Array.isArray(nextVal) ? nextVal : nextVal ? [nextVal] : [];
+          return JSON.stringify(prevArr) === JSON.stringify(nextArr);
+        }
+
+        return prevVal === nextVal;
+      });
+
+      if (!isSame) {
+        // Only reset to first page when filters actually change
+        setCurrentPage(1);
+        return newFilters;
+      }
+
+      return prev;
+    });
   };
 
   const showNoYachtsMessage = filteredYachts.length === 0 && !loadingYachts;
@@ -502,11 +524,11 @@ function CharterPageContent() {
           />
 
           {/* Results Count */}
-          {!loadingYachts && !showNoYachtsMessage && (
+          {/* {!loadingYachts && !showNoYachtsMessage && (
             <div className="text-base md:text-lg lg:text-xl tracking-wider font-light">
               <span className="font-medium">{resultsCount}</span> Yachts Found
             </div>
-          )}
+          )} */}
 
           <div className="border-t border-gray-300"></div>
 
