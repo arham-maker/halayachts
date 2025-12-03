@@ -403,6 +403,49 @@ export default function YachtForm({ yachtId, initialData = null }) {
     }
   };
 
+  const handleBrokerImageUpload = async (file) => {
+    if (!file) return;
+
+    const uploadKey = 'broker_image';
+    try {
+      setUploading(prev => ({ ...prev, [uploadKey]: true }));
+
+      const uploadFormData = new FormData();
+      uploadFormData.append('file', file);
+
+      const response = await fetch('/api/upload/yacht', {
+        method: 'POST',
+        body: uploadFormData,
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({ error: 'Failed to upload file' }));
+        throw new Error(errorData.error || errorData.details || 'Failed to upload file');
+      }
+
+      const result = await response.json();
+
+      if (result.success) {
+        setFormData(prev => ({
+          ...prev,
+          broker: {
+            ...prev.broker,
+            broker_image: result.filePath,
+          },
+        }));
+      } else {
+        const errorMsg = result.error || result.details || 'Failed to upload file';
+        alert(errorMsg);
+      }
+    } catch (error) {
+      console.error('Error uploading broker image:', error);
+      const errorMsg = error.message || 'Error uploading broker image. Please check the console for details.';
+      alert(errorMsg);
+    } finally {
+      setUploading(prev => ({ ...prev, [uploadKey]: false }));
+    }
+  };
+
   const preparePayload = (status) => {
     return {
       ...formData,
@@ -891,16 +934,36 @@ export default function YachtForm({ yachtId, initialData = null }) {
                 </div>
                 <div>
                   <label className="block text-sm font-semibold tracking-wide capitalize text-gray-700 mb-2">
-                    Broker Image URL (optional)
+                    Broker Image (optional)
                   </label>
-                  <input
-                    type="text"
-                    name="broker.broker_image"
-                    value={formData.broker.broker_image}
-                    onChange={handleInputChange}
-                    className="w-full px-4 py-2.5 border border-gray-300 rounded-lg text-sm tracking-wide focus:outline-none focus:ring-2 focus:ring-[#c8a75c] focus:border-transparent transition"
-                    placeholder="e.g., /images/broker.jpg"
-                  />
+                  <div className="space-y-2">
+                    <div className="flex gap-2">
+                      <input
+                        type="text"
+                        value={formData.broker.broker_image}
+                        readOnly
+                        className="flex-1 px-4 py-2.5 border border-gray-300 rounded-lg text-sm tracking-wide bg-gray-50 focus:outline-none cursor-not-allowed"
+                        placeholder="Upload broker image"
+                      />
+                      <label className="px-4 py-2 bg-[#c8a75c] text-white rounded-lg text-sm tracking-wide hover:bg-[#b8974c] transition cursor-pointer inline-flex items-center">
+                        <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" />
+                        </svg>
+                        {uploading['broker_image'] ? 'Uploading...' : 'Upload'}
+                        <input
+                          type="file"
+                          accept="image/*"
+                          onChange={(e) => handleBrokerImageUpload(e.target.files[0])}
+                          className="hidden"
+                        />
+                      </label>
+                    </div>
+                    {formData.broker.broker_image && (
+                      <p className="text-xs text-gray-500 tracking-wide break-all">
+                        Stored path: {formData.broker.broker_image}
+                      </p>
+                    )}
+                  </div>
                 </div>
                 <div className="md:col-span-2">
                   <label className="block text-sm font-semibold tracking-wide capitalize text-gray-700 mb-2">
