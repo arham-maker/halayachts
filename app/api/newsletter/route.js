@@ -72,10 +72,79 @@ async function sendNewsletterEmails(subscriber) {
     process.env.SMTP_FROM_EMAIL ||
     process.env.SMTP_USER;
 
-  const adminHtml = `
-    <h2>New Newsletter Subscriber</h2>
-    <p>${subscriber.email} just subscribed to the Hala Yachts newsletter.</p>
-    <p>Subscribed at: ${new Date(subscriber.createdAt).toLocaleString("en-US")}</p>
+    const adminHtml = `
+    <div style="background:#f5f5f5;padding:24px 16px;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;">
+      <div style="max-width:640px;margin:0 auto;background:#ffffff;border-radius:12px;overflow:hidden;box-shadow:0 10px 30px rgba(0,0,0,0.08);">
+        <div style="background:#111827;padding:18px 24px;border-bottom:1px solid #111827;">
+          <h1 style="margin:0;font-size:18px;font-weight:500;letter-spacing:0.08em;text-transform:uppercase;color:#fbbf24;">
+            Hala Yachts
+          </h1>
+          <p style="margin:4px 0 0;font-size:13px;color:#9ca3af;">
+            New newsletter subscription
+          </p>
+        </div>
+  
+        <div style="padding:24px;">
+          <div style="display:flex;align-items:center;gap:12px;margin-bottom:20px;">
+            <div style="width:48px;height:48px;border-radius:50%;background:#fef3c7;display:flex;align-items:center;justify-content:center;">
+              <svg style="width:24px;height:24px;color:#d97706;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+              </svg>
+            </div>
+            <div>
+              <h2 style="margin:0;font-size:18px;font-weight:600;color:#111827;">
+                New Newsletter Subscriber
+              </h2>
+              <p style="margin:4px 0 0;font-size:14px;color:#6b7280;">
+                Welcome a new member to the Hala Yachts community
+              </p>
+            </div>
+          </div>
+  
+          <div style="padding:16px;background:#f9fafb;border-radius:8px;border:1px solid #e5e7eb;margin-bottom:20px;">
+            <table cellpadding="0" cellspacing="0" border="0" style="width:100%;border-collapse:collapse;font-size:14px;color:#111827;">
+              <tbody>
+                <tr>
+                  <td style="padding:8px 0;width:100px;color:#6b7280;font-weight:500;vertical-align:top;">Email</td>
+                  <td style="padding:8px 0;">
+                    <a href="mailto:${subscriber.email}" style="color:#2563eb;text-decoration:none;font-weight:500;">
+                      ${subscriber.email}
+                    </a>
+                  </td>
+                </tr>
+                <tr>
+                  <td style="padding:8px 0;width:100px;color:#6b7280;font-weight:500;vertical-align:top;">Subscribed</td>
+                  <td style="padding:8px 0;color:#4b5563;">
+                    ${new Date(subscriber.createdAt).toLocaleString("en-US")}
+                  </td>
+                </tr>
+                <tr>
+                  <td style="padding:8px 0;width:100px;color:#6b7280;font-weight:500;vertical-align:top;">Status</td>
+                  <td style="padding:8px 0;">
+                    <span style="display:inline-block;padding:4px 10px;background:#dcfce7;color:#166534;border-radius:20px;font-size:12px;font-weight:500;">
+                      Active
+                    </span>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+  
+          <div style="margin-top:24px;padding:16px;background:#f0f9ff;border-radius:8px;border:1px solid #bae6fd;">
+            <p style="margin:0;font-size:14px;color:#0369a1;line-height:1.6;">
+              <strong>Next Step:</strong> Consider sending a welcome email to engage this new subscriber with your latest content or offers.
+            </p>
+          </div>
+        </div>
+  
+        <div style="padding:14px 24px 18px;border-top:1px solid #e5e7eb;background:#f9fafb;">
+          <p style="margin:0;font-size:12px;color:#9ca3af;line-height:1.5;">
+            You are receiving this email because you are listed as a contact for the
+            Hala Yachts website. Manage subscribers in your newsletter dashboard.
+          </p>
+        </div>
+      </div>
+    </div>
   `;
 
   const customerHtml = `

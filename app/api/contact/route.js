@@ -138,17 +138,71 @@ async function sendContactNotifications(messageDoc) {
 
   const fullName = `${messageDoc.firstName} ${messageDoc.lastName}`.trim();
   const adminHtml = `
-    <h2>New Contact Message</h2>
-    <p>A visitor submitted the contact form.</p>
-    <table cellpadding="6" cellspacing="0" border="0" style="border-collapse:collapse;">
-      <tbody>
-        <tr><td><strong>Name</strong></td><td>${fullName}</td></tr>
-        <tr><td><strong>Email</strong></td><td>${messageDoc.email}</td></tr>
-        <tr><td><strong>Phone</strong></td><td>${messageDoc.countryCode} ${messageDoc.phone}</td></tr>
-        <tr><td><strong>Message</strong></td><td>${messageDoc.message}</td></tr>
-        <tr><td><strong>Submitted</strong></td><td>${formatDate(messageDoc.createdAt)}</td></tr>
-      </tbody>
-    </table>
+    <div style="background:#f5f5f5;padding:24px 16px;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;">
+      <div style="max-width:640px;margin:0 auto;background:#ffffff;border-radius:12px;overflow:hidden;box-shadow:0 10px 30px rgba(0,0,0,0.08);">
+        <div style="background:#111827;padding:18px 24px;border-bottom:1px solid #111827;">
+          <h1 style="margin:0;font-size:18px;font-weight:500;letter-spacing:0.08em;text-transform:uppercase;color:#fbbf24;">
+            Hala Yachts
+          </h1>
+          <p style="margin:4px 0 0;font-size:13px;color:#9ca3af;">
+            New contact enquiry from the website
+          </p>
+        </div>
+
+        <div style="padding:20px 24px 8px;">
+          <h2 style="margin:0 0 8px;font-size:18px;font-weight:600;color:#111827;">
+            New Contact Message
+          </h2>
+          <p style="margin:0 0 16px;font-size:14px;color:#4b5563;line-height:1.6;">
+            A visitor has submitted the contact form. Here are the details:
+          </p>
+
+          <table cellpadding="0" cellspacing="0" border="0" style="width:100%;border-collapse:collapse;font-size:14px;color:#111827;">
+            <tbody>
+              <tr>
+                <td style="padding:6px 0;width:130px;color:#6b7280;font-weight:500;">Name</td>
+                <td style="padding:6px 0;">${fullName}</td>
+              </tr>
+              <tr>
+                <td style="padding:6px 0;width:130px;color:#6b7280;font-weight:500;">Email</td>
+                <td style="padding:6px 0;">
+                  <a href="mailto:${messageDoc.email}" style="color:#2563eb;text-decoration:none;">
+                    ${messageDoc.email}
+                  </a>
+                </td>
+              </tr>
+              <tr>
+                <td style="padding:6px 0;width:130px;color:#6b7280;font-weight:500;">Phone</td>
+                <td style="padding:6px 0;">
+                  <a href="tel:${messageDoc.countryCode}${messageDoc.phone}" style="color:#111827;text-decoration:none;">
+                    ${messageDoc.countryCode} ${messageDoc.phone}
+                  </a>
+                </td>
+              </tr>
+              <tr>
+                <td style="padding:6px 0 2px;width:130px;color:#6b7280;font-weight:500;vertical-align:top;">Message</td>
+                <td style="padding:6px 0 2px;">
+                  <div style="padding:10px 12px;margin-top:2px;border-radius:8px;background:#f9fafb;border:1px solid #e5e7eb;color:#111827;white-space:pre-wrap;line-height:1.6;">
+                    ${messageDoc.message}
+                  </div>
+                </td>
+              </tr>
+              <tr>
+                <td style="padding:10px 0 0;width:130px;color:#6b7280;font-weight:500;">Submitted</td>
+                <td style="padding:10px 0 0;color:#4b5563;">${formatDate(messageDoc.createdAt)}</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div style="padding:14px 24px 18px;border-top:1px solid #e5e7eb;background:#f9fafb;">
+          <p style="margin:0;font-size:12px;color:#9ca3af;line-height:1.5;">
+            You are receiving this email because you are listed as a contact for the
+            Hala Yachts website. Reply directly to this email to contact the guest.
+          </p>
+        </div>
+      </div>
+    </div>
   `;
 
   const customerHtml = `
