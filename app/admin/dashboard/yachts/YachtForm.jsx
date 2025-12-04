@@ -1610,50 +1610,6 @@ export default function YachtForm({ yachtId, initialData = null }) {
                   placeholder="Boat name"
                 />
               </div>
-              {/* <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2 tracking-wide">Owner Name/Entity/LLC</label>
-                <input
-                  type="text"
-                  name="specifications.owner_name_entity_llc"
-                  value={formData.specifications.owner_name_entity_llc}
-                  onChange={handleInputChange}
-                  className="w-full px-4 py-2.5 border border-gray-300 rounded-lg text-sm tracking-wide focus:outline-none focus:ring-2 focus:ring-[#c8a75c] focus:border-transparent transition"
-                  placeholder="Owner information"
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2 tracking-wide">Captain Name</label>
-                <input
-                  type="text"
-                  name="specifications.captain_name"
-                  value={formData.specifications.captain_name}
-                  onChange={handleInputChange}
-                  className="w-full px-4 py-2.5 border border-gray-300 rounded-lg text-sm tracking-wide focus:outline-none focus:ring-2 focus:ring-[#c8a75c] focus:border-transparent transition"
-                  placeholder="Captain name"
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2 tracking-wide">Captain Email</label>
-                <input
-                  type="email"
-                  name="specifications.captain_email"
-                  value={formData.specifications.captain_email}
-                  onChange={handleInputChange}
-                  className="w-full px-4 py-2.5 border border-gray-300 rounded-lg text-sm tracking-wide focus:outline-none focus:ring-2 focus:ring-[#c8a75c] focus:border-transparent transition"
-                  placeholder="captain@example.com"
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2 tracking-wide">Captain Cell</label>
-                <input
-                  type="text"
-                  name="specifications.captain_cell"
-                  value={formData.specifications.captain_cell}
-                  onChange={handleInputChange}
-                  className="w-full px-4 py-2.5 border border-gray-300 rounded-lg text-sm tracking-wide focus:outline-none focus:ring-2 focus:ring-[#c8a75c] focus:border-transparent transition"
-                  placeholder="Phone number"
-                />
-              </div> */}
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2 tracking-wide">Contact Person for Charters</label>
                 <input
