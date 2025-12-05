@@ -3,10 +3,8 @@ import { connectToDatabase } from '../../../lib/mongodb';
 import mongoose from 'mongoose';
 import { logger, formatErrorResponse, isProduction } from '../../../lib/utils';
 
-// Force dynamic rendering for real-time data
 export const dynamic = 'force-dynamic';
 
-// GET - All locations
 export async function GET() {
   try {
     await connectToDatabase();

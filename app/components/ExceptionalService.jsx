@@ -3,7 +3,7 @@ import React from 'react'
 const ExceptionalService = ({
   backgroundImage = "/images/about_us.png",
   subHeading = "Expertise You Can Trust",
-  mainHeading = "Premium Luxury Yachting Experience ",
+  mainHeading = "Purchase and Management ",
   description = "Backed up by an expert crew, we have hands-on experience in planning and executing yacht journeys from beginning to end. Our in-depth knowledge of yachts and access to the most attractive yachts in the market ensure you get a yacht that perfectly matches your needs and expectations.  ",
   features = [
     {

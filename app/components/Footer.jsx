@@ -18,7 +18,7 @@ const Footer = () => {
   const QUICK_LINKS = [
     { name: "Home", href: "/" },
     { name: "Charter", href: "/charter" },
-    { name: "Location", href: "/location" },
+    { name: "Locations", href: "/location" },
     { name: "About Us", href: "/about" },
     { name: "Hala Jets", href: "https://halajets.com/" }
   ];

@@ -99,7 +99,6 @@ const BUDGET_OPTIONS = [
 ];
 
 const PASSENGER_OPTIONS = [
-  { value: "all", label: "All Passengers" },
   { value: "2", label: "Up to 2" },
   { value: "4", label: "Up to 4" },
   { value: "6", label: "Up to 6" },
@@ -517,11 +516,11 @@ const SearchFilter = ({
         />
       </div>
 
-      {/* Passengers - Smaller dropdown */}
+      {/* Guests - Smaller dropdown */}
       <div className="flex flex-col gap-1">
-        <label className={FILTER_CONTAINER_STYLES.label}>Passengers</label>
+        <label className={FILTER_CONTAINER_STYLES.label}>Guests</label>
         <FilterDropdown
-          label="All Passengers"
+          label="Guests"
           options={PASSENGER_OPTIONS}
           value={filters.passengers}
           onChange={(value) => handleFilterChange("passengers", value)}
@@ -638,13 +637,13 @@ const SearchFilter = ({
         />
       </div>
 
-      {/* Passengers - Smaller dropdown */}
+      {/* Guests - Smaller dropdown */}
       <div className="flex flex-col gap-2">
         <label className="text-base font-semibold text-gray-900">
-          Passengers
+          Guests
         </label>
         <FilterDropdown
-          label="All Passengers"
+          label="Guests"
           options={PASSENGER_OPTIONS}
           value={tempFilters.passengers}
           onChange={(value) => handleTempFilterChange("passengers", value)}
