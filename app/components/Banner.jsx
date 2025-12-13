@@ -44,7 +44,7 @@ const Banner = ({
         right: "text-right items-end"
     };
 
-    // Calculate opacity class based on overlayOpacity prop
+    // Calculate opacity class based on overlayOpacity prop 
     const getOpacityClass = () => {
         if (overlayOpacity === 0) return "opacity-0"; // No overlay
         if (overlayOpacity === 0.1) return "opacity-10";
