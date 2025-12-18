@@ -324,7 +324,7 @@ export default function BookingForm({
 
       console.log('Booking submitted successfully:', result);
 
-      toast.success('Booking submitted successfully! We will contact you soon.', {
+      toast.success('Booking inquiry submission confirmed. One of our Yacht Advisors shall be reaching out to you shortly with the next steps. Thank you', {
         position: "top-right",
         autoClose: 5000,
         hideProgressBar: false,

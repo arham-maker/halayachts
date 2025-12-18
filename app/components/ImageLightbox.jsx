@@ -1,9 +1,10 @@
 'use client';
-import { useEffect } from 'react';
+import { useEffect, useRef } from 'react';
 import { IoClose, IoChevronBack, IoChevronForward } from 'react-icons/io5';
 
 const ICON_SIZE = 24;
 const OVERLAY_STYLES = 'bg-black/50 rounded-full w-12 h-12 flex items-center justify-center hover:bg-black/70 transition-all';
+const SWIPE_THRESHOLD = 50; // pixels
 
 export default function ImageLightbox({
     isOpen,
@@ -14,6 +15,9 @@ export default function ImageLightbox({
     onPrev,
     title
 }) {
+    const touchStartXRef = useRef(null);
+    const touchEndXRef = useRef(null);
+
     useEffect(() => {
         const handleKeydown = (e) => {
             if (!isOpen) return;
@@ -37,6 +41,36 @@ export default function ImageLightbox({
             document.body.style.overflow = 'unset';
         };
     }, [isOpen]);
+
+    const handleTouchStart = (e) => {
+        if (!isOpen || !e.touches || e.touches.length === 0) return;
+        touchStartXRef.current = e.touches[0].clientX;
+        touchEndXRef.current = null;
+    };
+
+    const handleTouchMove = (e) => {
+        if (!isOpen || !e.touches || e.touches.length === 0) return;
+        touchEndXRef.current = e.touches[0].clientX;
+    };
+
+    const handleTouchEnd = () => {
+        if (!isOpen || touchStartXRef.current === null || touchEndXRef.current === null) return;
+
+        const diff = touchStartXRef.current - touchEndXRef.current;
+
+        if (Math.abs(diff) > SWIPE_THRESHOLD) {
+            if (diff > 0) {
+                // Swiped left → next image
+                onNext();
+            } else {
+                // Swiped right → previous image
+                onPrev();
+            }
+        }
+
+        touchStartXRef.current = null;
+        touchEndXRef.current = null;
+    };
 
     if (!isOpen) return null;
 
@@ -67,7 +101,12 @@ export default function ImageLightbox({
                     </button>
                 </>
             )}
-            <div className="relative max-w-6xl max-h-[85vh] w-full flex items-center justify-center">
+            <div
+                className="relative max-w-6xl max-h-[85vh] w-full flex items-center justify-center"
+                onTouchStart={handleTouchStart}
+                onTouchMove={handleTouchMove}
+                onTouchEnd={handleTouchEnd}
+            >
                 <img
                     src={images[currentIndex]}
                     alt={`${title} - Image ${currentIndex + 1}`}
