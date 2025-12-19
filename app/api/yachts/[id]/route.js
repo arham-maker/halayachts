@@ -6,6 +6,52 @@ import { logger, formatErrorResponse, isProduction } from '../../../../lib/utils
 // Force dynamic rendering for real-time data
 export const dynamic = 'force-dynamic';
 
+/**
+ * Generate a unique slug by appending numbers if duplicates exist (WordPress-style)
+ * @param {string} baseSlug - The base slug to check
+ * @param {object} db - MongoDB database instance
+ * @param {string} excludeId - MongoDB ObjectId to exclude from check (for updates)
+ * @returns {Promise<string>} - A unique slug
+ */
+async function generateUniqueSlug(baseSlug, db, excludeId = null) {
+  let slug = baseSlug;
+  let counter = 2;
+  
+  // Build query to check for existing slug
+  const query = {
+    $or: [
+      { slug: slug },
+      { slugs: { $in: [slug] } }
+    ]
+  };
+  
+  // Exclude current yacht if updating
+  if (excludeId) {
+    query._id = { $ne: new ObjectId(excludeId) };
+  }
+  
+  // Check if the base slug exists
+  let existingYacht = await db.collection('yachts').findOne(query);
+  
+  // If slug exists, try slug-2, slug-3, etc. until we find a unique one
+  while (existingYacht) {
+    slug = `${baseSlug}-${counter}`;
+    const newQuery = {
+      $or: [
+        { slug: slug },
+        { slugs: { $in: [slug] } }
+      ]
+    };
+    if (excludeId) {
+      newQuery._id = { $ne: new ObjectId(excludeId) };
+    }
+    existingYacht = await db.collection('yachts').findOne(newQuery);
+    counter++;
+  }
+  
+  return slug;
+}
+
 // GET - Fetch yacht by ID or slug
 export async function GET(request, { params }) {
   try {
@@ -89,22 +135,9 @@ export async function PUT(request, { params }) {
       );
     }
 
-    // If slug is being updated, check for conflicts
+    // If slug is being updated, auto-generate unique slug if duplicate exists (WordPress-style)
     if (updateData.slug && updateData.slug !== existingYacht.slug) {
-      const slugConflict = await db.collection('yachts').findOne({ 
-        _id: { $ne: new ObjectId(id) },
-        $or: [
-          { slug: updateData.slug },
-          { slugs: { $in: [updateData.slug] } }
-        ]
-      });
-      
-      if (slugConflict) {
-        return NextResponse.json(
-          { error: 'Yacht with this slug already exists' },
-          { status: 409 }
-        );
-      }
+      updateData.slug = await generateUniqueSlug(updateData.slug, db, id);
     }
 
     // Update yacht

@@ -5,6 +5,39 @@ import { logger, formatErrorResponse, isProduction } from '../../../lib/utils';
 // Force dynamic rendering for real-time data
 export const dynamic = 'force-dynamic';
 
+/**
+ * Generate a unique slug by appending numbers if duplicates exist (WordPress-style)
+ * @param {string} baseSlug - The base slug to check
+ * @param {object} db - MongoDB database instance
+ * @returns {Promise<string>} - A unique slug
+ */
+async function generateUniqueSlug(baseSlug, db) {
+  let slug = baseSlug;
+  let counter = 2;
+  
+  // Check if the base slug exists
+  let existingYacht = await db.collection('yachts').findOne({ 
+    $or: [
+      { slug: slug },
+      { slugs: { $in: [slug] } }
+    ]
+  });
+  
+  // If slug exists, try slug-2, slug-3, etc. until we find a unique one
+  while (existingYacht) {
+    slug = `${baseSlug}-${counter}`;
+    existingYacht = await db.collection('yachts').findOne({ 
+      $or: [
+        { slug: slug },
+        { slugs: { $in: [slug] } }
+      ]
+    });
+    counter++;
+  }
+  
+  return slug;
+}
+
 export async function GET() {
   try {
     const { connection } = await connectToDatabase();
@@ -58,20 +91,8 @@ export async function POST(request) {
       );
     }
 
-    // Check if yacht with same slug already exists
-    const existingYacht = await db.collection('yachts').findOne({ 
-      $or: [
-        { slug: yachtData.slug },
-        { slugs: { $in: [yachtData.slug] } }
-      ]
-    });
-    
-    if (existingYacht) {
-      return NextResponse.json(
-        { error: 'Yacht with this slug already exists' },
-        { status: 409 }
-      );
-    }
+    // Auto-generate unique slug if duplicate exists (WordPress-style)
+    yachtData.slug = await generateUniqueSlug(yachtData.slug, db);
 
     // Auto-generate sequential numeric ID if not provided
     if (!yachtData.id) {
