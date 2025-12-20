@@ -1081,7 +1081,7 @@ export default function YachtForm({ yachtId, initialData = null }) {
                     }));
                   }}
                   required
-                   className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm tracking-wide focus:outline-none focus:ring-2 focus:ring-[#c8a75c] focus:border-transparent bg-white/80 hover:border-[#c8a75c] transition  overflow-y-hidden"
+                   className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm tracking-wide focus:outline-none focus:ring-2 focus:ring-[#c8a75c] focus:border-transparent bg-white/80 hover:border-[#c8a75c] transition  h-auto"
                 >
                   {!locationsLoading && (
                     <option value="" disabled>
@@ -1089,12 +1089,12 @@ export default function YachtForm({ yachtId, initialData = null }) {
                     </option>
                   )}
                   {locationsLoading && (
-                    <option value="" disabled>
+                    <option value="" disabled >
                       Loading locations...
                     </option>
                   )}
                   {locations.map((loc) => (
-                    <option key={loc._id} value={loc.id}>
+                    <option key={loc._id} value={loc.id} className='mt-0.5'>
                       {loc.title}
                     </option>
                   ))}
