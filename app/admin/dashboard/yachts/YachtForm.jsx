@@ -12,29 +12,26 @@ export default function YachtForm({ yachtId, initialData = null }) {
   const [uploading, setUploading] = useState({});
   const [locations, setLocations] = useState([]);
   const [locationsLoading, setLocationsLoading] = useState(true);
+  const [isSlugEditable, setIsSlugEditable] = useState(false);
+  const [originalSlug, setOriginalSlug] = useState('');
   const [formData, setFormData] = useState({
     id: '',
     yacht_id: '',
     title: '',
     name: '',
     slug: '',
-    vessel_type: '',
     year: '',
     length: '',
     speed: '',
     guests: '',
     min_duration: '',
-    tax: '',
-    tax_label: '',
-    refit: '',
     features_and_availablity_info: '',
     image: '',
     banner_image: '',
     amenities: [],
     brochure: { file_path: '', file_name: '' },
-    specifications: {
+      specifications: {
       marina_location: '',
-      refit: '',
       cruising_knots: '',
       length: '',
       beam: '',
@@ -122,21 +119,19 @@ export default function YachtForm({ yachtId, initialData = null }) {
       const response = await fetch(`/api/yachts/${yachtId}`);
       if (response.ok) {
         const yacht = await response.json();
+        const yachtSlug = yacht.slug || '';
+        setOriginalSlug(yachtSlug);
         setFormData({
           id: yacht.id || '',
           yacht_id: yacht.yacht_id || '',
           title: yacht.title || '',
           name: yacht.name || '',
-          slug: yacht.slug || '',
-          vessel_type: yacht.vessel_type || '',
+          slug: yachtSlug,
           year: yacht.year || '',
           length: yacht.length || '',
           speed: yacht.speed || '',
           guests: yacht.guests || '',
           min_duration: yacht.min_duration || '',
-          tax: yacht.tax || '',
-          tax_label: yacht.tax_label || '',
-          refit: yacht.refit || '',
           features_and_availablity_info: yacht.features_and_availablity_info || '',
           image: yacht.image || '',
           banner_image: yacht.banner_image || '',
@@ -144,7 +139,6 @@ export default function YachtForm({ yachtId, initialData = null }) {
           brochure: yacht.brochure || { file_path: '', file_name: '' },
           specifications: yacht.specifications || {
             marina_location: '',
-            refit: '',
             cruising_knots: '',
             length: '',
             beam: '',
@@ -462,7 +456,6 @@ export default function YachtForm({ yachtId, initialData = null }) {
       speed: formData.speed ? parseFloat(formData.speed) : undefined,
       guests: formData.guests ? parseInt(formData.guests) : undefined,
       min_duration: formData.min_duration ? parseInt(formData.min_duration) : undefined,
-      tax: formData.tax ? parseFloat(formData.tax) : undefined,
       location: {
         ...formData.location,
         id: formData.location.id ? parseInt(formData.location.id) : undefined,
@@ -706,24 +699,50 @@ export default function YachtForm({ yachtId, initialData = null }) {
                   type="text"
                   name="slug"
                   value={formData.slug}
-                  readOnly
+                  readOnly={!isSlugEditable}
                   required
-                  className="w-full px-4 py-2.5 border border-gray-300 rounded-lg text-sm tracking-wide bg-gray-50 text-gray-600 focus:outline-none cursor-not-allowed"
+                  onChange={handleInputChange}
+                  className={`w-full px-4 py-2.5 border border-gray-300 rounded-lg text-sm tracking-wide ${
+                    isSlugEditable
+                      ? 'bg-white text-gray-900 focus:outline-none focus:ring-2 focus:ring-[#c8a75c] focus:border-transparent transition cursor-text'
+                      : 'bg-gray-50 text-gray-600 focus:outline-none cursor-not-allowed'
+                  }`}
                   placeholder="Auto-generated from title"
                 />
-              </div>
-              <div>
-                <label className="block text-sm font-semibold tracking-wide capitalize text-gray-700 mb-2">
-                  Vessel Type
-                </label>
-                <input
-                  type="text"
-                  name="vessel_type"
-                  value={formData.vessel_type}
-                  onChange={handleInputChange}
-                  className="w-full px-4 py-2.5 border border-gray-300 rounded-lg text-sm tracking-wide focus:outline-none focus:ring-2 focus:ring-[#c8a75c] focus:border-transparent transition"
-                  placeholder="e.g., Motor Yacht"
-                />
+                {!isSlugEditable ? (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setOriginalSlug(formData.slug);
+                      setIsSlugEditable(true);
+                    }}
+                    className="mt-2 px-3 py-1.5 text-xs font-medium text-[#c8a75c] hover:text-[#b8964a] border border-[#c8a75c] hover:border-[#b8964a] rounded-lg transition-colors"
+                  >
+                    Edit Slug
+                  </button>
+                ) : (
+                  <div className="mt-2 flex gap-2">
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setIsSlugEditable(false);
+                      }}
+                      className="px-3 py-1.5 text-xs font-medium text-white bg-[#c8a75c] hover:bg-[#b8964a] rounded-lg transition-colors"
+                    >
+                      OK
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setFormData(prev => ({ ...prev, slug: originalSlug }));
+                        setIsSlugEditable(false);
+                      }}
+                      className="px-3 py-1.5 text-xs font-medium text-gray-700 bg-gray-200 hover:bg-gray-300 rounded-lg transition-colors"
+                    >
+                      Cancel
+                    </button>
+                  </div>
+                )}
               </div>
               <div>
                 <label className="block text-sm font-semibold tracking-wide capitalize text-gray-700 mb-2">
@@ -788,45 +807,6 @@ export default function YachtForm({ yachtId, initialData = null }) {
                   onChange={handleInputChange}
                   className="w-full px-4 py-2.5 border border-gray-300 rounded-lg text-sm tracking-wide focus:outline-none focus:ring-2 focus:ring-[#c8a75c] focus:border-transparent transition"
                   placeholder="e.g., 4"
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-semibold tracking-wide capitalize text-gray-700 mb-2">
-                  Tax (%)
-                </label>
-                <input
-                  type="number"
-                  name="tax"
-                  value={formData.tax}
-                  onChange={handleInputChange}
-                  className="w-full px-4 py-2.5 border border-gray-300 rounded-lg text-sm tracking-wide focus:outline-none focus:ring-2 focus:ring-[#c8a75c] focus:border-transparent transition"
-                  placeholder="e.g., 6"
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-semibold tracking-wide capitalize text-gray-700 mb-2">
-                  Tax Label
-                </label>
-                <input
-                  type="text"
-                  name="tax_label"
-                  value={formData.tax_label}
-                  onChange={handleInputChange}
-                  className="w-full px-4 py-2.5 border border-gray-300 rounded-lg text-sm tracking-wide focus:outline-none focus:ring-2 focus:ring-[#c8a75c] focus:border-transparent transition"
-                  placeholder="e.g., Tax"
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-semibold tracking-wide capitalize text-gray-700 mb-2">
-                  Refit
-                </label>
-                <input
-                  type="text"
-                  name="refit"
-                  value={formData.refit}
-                  onChange={handleInputChange}
-                  className="w-full px-4 py-2.5 border border-gray-300 rounded-lg text-sm tracking-wide focus:outline-none focus:ring-2 focus:ring-[#c8a75c] focus:border-transparent transition"
-                  placeholder="Refit information"
                 />
               </div>
               <div>
@@ -1476,17 +1456,6 @@ export default function YachtForm({ yachtId, initialData = null }) {
                   onChange={handleInputChange}
                   className="w-full px-4 py-2.5 border border-gray-300 rounded-lg text-sm tracking-wide focus:outline-none focus:ring-2 focus:ring-[#c8a75c] focus:border-transparent transition"
                   placeholder="Marina location"
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2 tracking-wide">Refit</label>
-                <input
-                  type="text"
-                  name="specifications.refit"
-                  value={formData.specifications.refit}
-                  onChange={handleInputChange}
-                  className="w-full px-4 py-2.5 border border-gray-300 rounded-lg text-sm tracking-wide focus:outline-none focus:ring-2 focus:ring-[#c8a75c] focus:border-transparent transition"
-                  placeholder="Refit information"
                 />
               </div>
               <div>

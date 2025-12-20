@@ -4,7 +4,7 @@ const formatSpecValue = (key, value) => {
   if (value === 'Nil' || value === 'null') return value;
 
   if (key === 'length' || key === 'beam' || key === 'draft') {
-    return `${value} ft`;
+    return `${value}`;
   }
   if (key === 'cruising_knots') {
     return `${value} knots`;
@@ -29,7 +29,7 @@ const STYLES = {
   grid: "grid grid-cols-1 lg:grid-cols-2 gap-x-12",
   specCard: "flex justify-between py-6 border-b border-b-[#D3D3D3]",
   specTitle: "text-xl text-[#404040] font-light tracking-wide",
-  specValue: "text-xl text-secondary font-bold tracking-wide"
+  specValue: "text-xl text-secondary font-bold tracking-wider"
 };
 
 export default function SpecificationsSection({ specifications }) {
