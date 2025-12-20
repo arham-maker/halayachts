@@ -1,7 +1,7 @@
 'use client';
 
 const STYLES = {
-    mapContainer: "w-full h-96 lg:h-[650px] overflow-hidden ",
+    mapContainer: "w-full h-96 lg:h-[300px] overflow-hidden ",
     mapFrame: "w-full h-full border-0",
 };
 
