@@ -46,6 +46,12 @@ export default function RootLayout({ children }) {
             `,
           }}
         />
+        {/* Ahrefs Analytics */}
+        <Script
+          src="https://analytics.ahrefs.com/analytics.js"
+          data-key="f4F1ljXl+BoLTYjOCJn5OA"
+          strategy="afterInteractive"
+        />
         {/* Google Tag Manager (noscript) */}
         <noscript>
           <iframe
