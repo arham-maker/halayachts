@@ -367,13 +367,6 @@ Hala Yachts
                     <FiMail className="w-4 h-4 md:w-5 md:h-5" />
                     Email Privacy Team
                   </a>
-                  <a
-                    href="/contact"
-                    className="bg-text-primary text-white text-base px-6 py-3 md:px-8 md:py-4 w-full sm:w-auto md:text-lg rounded cursor-pointer hover:bg-opacity-90 transition duration-300 text-center flex items-center justify-center gap-2"
-                  >
-                    <FiPhone className="w-4 h-4 md:w-5 md:h-5" />
-                    Contact Support
-                  </a>
                 </div>
               </div>
             </div>

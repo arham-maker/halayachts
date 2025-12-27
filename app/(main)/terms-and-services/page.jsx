@@ -1,3 +1,4 @@
+import Link from "next/link";
 import Banner from "../../components/Banner";
 import { 
   FiFileText,
@@ -343,20 +344,20 @@ HalaYachts LLC
                   By booking a charter with HalaYachts, you acknowledge that you have read, understood, and agree to be bound by these Terms & Conditions.
                 </p>
                 <div className="flex flex-col sm:flex-row gap-4">
-                  <a
+                  {/* <a
                     href="/contact"
                     className="bg-text-primary text-white text-base px-6 py-3 md:px-8 md:py-4 w-full sm:w-auto md:text-lg font-medium rounded cursor-pointer hover:bg-opacity-90 transition duration-300 text-center flex items-center justify-center gap-2"
                   >
                     <FiMail className="w-4 h-4 md:w-5 md:h-5" />
                     Contact for Questions
-                  </a>
-                  <a
-                    href="/booking"
+                  </a> */}
+                  <Link
+                    href="/charter"
                     className="bg-text-primary text-white text-base px-6 py-3 md:px-8 md:py-4 w-full sm:w-auto md:text-lg font-medium rounded cursor-pointer hover:bg-opacity-90 transition duration-300 text-center flex items-center justify-center gap-2"
                   >
                     <FiCheckCircle className="w-4 h-4 md:w-5 md:h-5" />
                     Proceed to Booking
-                  </a>
+                  </Link>
                 </div>
               </div>
             </div>
