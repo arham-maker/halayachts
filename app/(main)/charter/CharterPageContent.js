@@ -9,6 +9,7 @@ import { useSearchParams } from "next/navigation";
 import PerfectYachtBanner from "../../components/PerfectYachtBanner";
 import Link from "next/link";
 import LocationCard from "../../components/LocationCard";
+import CharterInquiryForm from "../../components/CharterInquiryForm";
 import { clientLogger } from "@/lib/clientLogger";
 
 // Client-side function that fetches yachts from database
@@ -273,6 +274,7 @@ function CharterPageContent() {
   const [yachtsData, setYachtsData] = useState([]);
   const [loadingLocations, setLoadingLocations] = useState(true);
   const [loadingYachts, setLoadingYachts] = useState(true);
+  const [isInquiryFormOpen, setIsInquiryFormOpen] = useState(false);
 
   const itemsPerPage = 45;
   const yachtGridRef = useRef(null);
@@ -334,18 +336,21 @@ function CharterPageContent() {
   // Filter logic - Improved with better matching
   const filteredYachts = useMemo(() => {
     return yachtsData.filter((yacht) => {
-      // Location filter - Improved matching
+      // Location filter - Match by location title (yacht.location.city contains location title)
       if (filters.location !== "all") {
-        const yachtLocation = yacht.location?.city?.toLowerCase() || "";
-        const yachtCountry = yacht.location?.country?.toLowerCase() || "";
-        const filterLocation = filters.location.toLowerCase();
+        const yachtLocation = yacht.location?.city?.toLowerCase().trim() || "";
+        const yachtCountry = yacht.location?.country?.toLowerCase().trim() || "";
+        const filterLocation = filters.location.toLowerCase().trim();
 
+        // Exact match or contains match (handles partial matches)
         const locationMatch =
+          yachtLocation === filterLocation ||
           yachtLocation.includes(filterLocation) ||
+          filterLocation.includes(yachtLocation) ||
           yachtCountry.includes(filterLocation) ||
-          yachtLocation
-            .replace(/\s+/g, "")
-            .includes(filterLocation.replace(/\s+/g, ""));
+          // Remove spaces and compare (handles "Miami, Florida" vs "Miami,Florida")
+          yachtLocation.replace(/\s+/g, "").includes(filterLocation.replace(/\s+/g, "")) ||
+          filterLocation.replace(/\s+/g, "").includes(yachtLocation.replace(/\s+/g, ""));
 
         if (!locationMatch) return false;
       }
@@ -504,16 +509,28 @@ function CharterPageContent() {
 
       <section ref={yachtGridRef} className="lg:py-24 py-8">
         <div className="max-w-7xl mx-auto px-5 flex flex-col gap-10">
-          <div className="flex flex-col gap-5 ">
-            <h1 className="text-3xl md:text-5xl lg:text-6xl xl:text-[65px] font-light tracking-wide">
-              Discover Your Ideal Vessel
-            </h1>
-            <p className="text-base md:text-lg lg:text-xl sm:max-w-[95%] tracking-wider font-light">
-              Browse through our curated fleet of world-class vessels that
-              represent the best in craftsmanship, comfort, and performance.
-              Filter by size, style, and amenities to select a yacht that aligns
-              with your needs and budget for a one-of-a-kind charter experience.
-            </p>
+          <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6">
+            <div className="flex flex-col gap-5 flex-1">
+              <h1 className="text-3xl md:text-5xl lg:text-6xl xl:text-[65px] font-light tracking-wide">
+                Discover Your Ideal Vessel
+              </h1>
+              <p className="text-base md:text-lg lg:text-xl sm:max-w-[95%] tracking-wider font-light">
+                Browse through our curated fleet of world-class vessels that
+                represent the best in craftsmanship, comfort, and performance.
+                Filter by size, style, and amenities to select a yacht that aligns
+                with your needs and budget for a one-of-a-kind charter experience.
+              </p>
+            </div>
+            
+            {/* Inquiry / Book Charter Button */}
+            <div className="flex-shrink-0 lg:mt-0 mt-4">
+              <button
+                onClick={() => setIsInquiryFormOpen(true)}
+                className="bg-text-primary text-center text-base p-3 sm:w-2xs w-40 md:text-base font-light tracking-wider rounded cursor-pointer hover:bg-opacity-90  text-white shadow-2xs hover:shadow-xl transition-all duration-300 transform hover:scale-105 active:scale-95 whitespace-nowrap"
+              >
+                Inquiry / Book Charter
+              </button>
+            </div>
           </div>
 
           {/* Search Filter Component - initialFilters pass karo */}
@@ -609,6 +626,12 @@ function CharterPageContent() {
           yachtsData={yachtsData}
         />
       )}
+
+      {/* Charter Inquiry Form Modal */}
+      <CharterInquiryForm
+        isOpen={isInquiryFormOpen}
+        onClose={() => setIsInquiryFormOpen(false)}
+      />
     </main>
   );
 }

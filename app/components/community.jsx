@@ -17,7 +17,7 @@ const Community = () => {
     {
       id: 2,
       text: "The journey felt effortless, yet unforgettable. From the captain’s expertise to the crew’s warmth, every moment was beyond expectations.”",
-      image: "/images/client01.png",
+      image: "/images/team2.png",
       name: "Sarah Johnson",
       location: "London"
     }

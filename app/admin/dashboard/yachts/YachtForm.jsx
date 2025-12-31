@@ -1454,7 +1454,7 @@ export default function YachtForm({ yachtId, initialData = null }) {
                   name="specifications.marina_location"
                   value={formData.specifications.marina_location}
                   onChange={handleInputChange}
-                  className="w-full px-4 py-2.5 border border-gray-300 rounded-lg text-sm tracking-wide focus:outline-none focus:ring-2 focus:ring-[#c8a75c] focus:border-transparent transition"
+                  className="w-full px-4 py-2.5 border border-gray-300 rounded-lg text-sm tracking-wide focus:outline-none focus:ring-2 focus:ring-[#c8a75c] focus:border-transparent transition capitalize"
                   placeholder="Marina location"
                 />
               </div>

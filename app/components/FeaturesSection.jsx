@@ -2,6 +2,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { FiMapPin } from 'react-icons/fi';
 import {
   EmailShareButton,
   FacebookShareButton,
@@ -23,7 +24,7 @@ const CONTENT = {
     prefix: "Explore",
     suffix: "Features and Availability"
   },
-  pricingNote: "Charter Prices:Price Boxes For All-In Costs.",
+  pricingNote: "All in Charter Prices",
   note: "All particulars are given in good faith, however exact accuracy is not guaranteed.",
   shareButton: "Share",
   downloadBrochure: "Download Brochure",
@@ -47,7 +48,7 @@ const STYLES = {
   pricingNote: "text-base tracking-wider font-light",
   pricingSection: "grid grid-cols-1 lg:grid-cols-2 gap-6",
   pricingGrid: "grid grid-cols-1 md:grid-cols-2 gap-4",
-  priceBox: "bg-text-secondary border border-gray-300 rounded-lg lg:p-6 p-3 hover:shadow-md transition-shadow cursor-pointer",
+  priceBox: "bg-text-secondary border border-gray-300 rounded-lg lg:p-6 p-3 hover:shadow-md transition-shadowr",
   priceContent: "flex flex-col items-center gap-1",
   priceAmount: "text-3xl font-bold text-white tracking-wider",
   rateInfo: "flex items-center gap-1 text-white text-lg tracking-wider",
@@ -228,10 +229,23 @@ export default function FeaturesSection({
     yachtTitle: title
   };
 
+  // Check if location exists for display
+  const hasLocation = charterLocation && charterLocation !== "Location not specified";
+
   return (
     <section className={STYLES.section}>
       <div className={STYLES.container}>
         <div className={STYLES.content}>
+          {/* Location Display - Above section heading */}
+          {hasLocation && (
+            <div className="flex items-center gap-3 text-gray-700 ">
+              <FiMapPin className="w-5 h-5 text-[#c8a75c] flex-shrink-0" />
+              <span className="text-base md:text-lg lg:text-xl tracking-wider font-light">
+                {charterLocation}
+              </span>
+            </div>
+          )}
+
           <h2 className={STYLES.heading}>
             <span className={STYLES.secondaryText}>{headingPrefix}</span> {headingSuffix}
           </h2>

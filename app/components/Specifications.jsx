@@ -28,8 +28,8 @@ const STYLES = {
   heading: "text-3xl md:text-5xl lg:text-6xl xl:text-[65px] font-light tracking-wide",
   grid: "grid grid-cols-1 lg:grid-cols-2 gap-x-12",
   specCard: "flex justify-between py-6 border-b border-b-[#D3D3D3]",
-  specTitle: "text-xl text-[#404040] font-light tracking-wide",
-  specValue: "text-xl text-secondary font-bold tracking-wider"
+  specTitle: "text-xl text-[#404040] font-light tracking-wide capitalize",
+  specValue: "text-xl text-secondary font-bold tracking-wider capitalize"
 };
 
 export default function SpecificationsSection({ specifications }) {

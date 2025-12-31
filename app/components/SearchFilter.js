@@ -56,24 +56,7 @@ const MOBILE_STYLES = {
     "w-full bg-text-secondary text-white py-4 rounded-lg font-semibold text-lg hover:bg-primary transition-colors mt-10 sticky bottom-4 z-10",
 };
 
-const LOCATION_OPTIONS = [
-  { value: "all", label: "All Locations" },
-  { value: "miami", label: "Miami, Florida" },
-  { value: "hampton", label: "The Hampton, New York" },
-  { value: "nassau", label: "Nassau, Bahamas" },
-  { value: "amalfi", label: "Amalfi Coast, Italy" },
-  { value: "mykonos", label: "Mykonos, Greece" },
-  { value: "newport", label: "Newport Beach, California" },
-  { value: "maine", label: "Maine, USA" },
-  { value: "kotor", label: "Kotor, Montenegro" },
-  { value: "montauk", label: "Montauk, New York" },
-  { value: "cancun", label: "Cancun, Mexico" },
-  { value: "abudhabi", label: "Abu Dhabi, UAE" },
-  { value: "dubai", label: "Dubai, UAE" },
-  { value: "marbella", label: "Marbella, Spain" },
-  { value: "barcelona", label: "Barcelona, Spain" },
-  { value: "puertorico", label: "Puerto Rico, Caribbean" },
-];
+// Location options are now fetched from database via API - no static locations
 
 const DURATION_OPTIONS = [
   { value: "all", label: "All Durations" },
@@ -315,6 +298,42 @@ const SearchFilter = ({
   const [openDropdown, setOpenDropdown] = useState(null);
   const [isMobileSheetOpen, setIsMobileSheetOpen] = useState(false);
   const [tempFilters, setTempFilters] = useState(filters);
+  const [locations, setLocations] = useState([]);
+  const [locationsLoading, setLocationsLoading] = useState(true);
+
+  // Fetch locations from database
+  useEffect(() => {
+    let isMounted = true;
+
+    async function fetchLocations() {
+      try {
+        setLocationsLoading(true);
+        const response = await fetch('/api/locations', {
+          cache: 'no-store',
+        });
+        
+        if (response.ok && isMounted) {
+          const data = await response.json();
+          setLocations(data || []);
+        }
+      } catch (error) {
+        console.error('Error fetching locations:', error);
+        if (isMounted) {
+          setLocations([]);
+        }
+      } finally {
+        if (isMounted) {
+          setLocationsLoading(false);
+        }
+      }
+    }
+
+    fetchLocations();
+
+    return () => {
+      isMounted = false;
+    };
+  }, []);
 
   // Update temp filters when main filters change
   useEffect(() => {
@@ -410,7 +429,25 @@ const SearchFilter = ({
         { value: "current", label: currentLocation }
       ];
     }
-    return LOCATION_OPTIONS;
+    
+    // Build location options from database locations
+    // Always include "All Locations" as first option
+    const locationOptions = [{ value: "all", label: "All Locations" }];
+    
+    // Add locations from database if they exist
+    if (locations && locations.length > 0) {
+      // Transform database locations to expected format
+      // API returns: { id, _id, title, image }
+      // Use title as value because yacht.location.city contains the location title
+      const transformedLocations = locations.map(loc => ({
+        value: loc.title, // Use title instead of id to match yacht.location.city
+        label: loc.title
+      }));
+      
+      locationOptions.push(...transformedLocations);
+    }
+    
+    return locationOptions;
   };
 
   const locationOptionsToUse = getLocationOptions();

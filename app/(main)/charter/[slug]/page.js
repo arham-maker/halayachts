@@ -93,9 +93,7 @@ export default function YachtDetailPage({ params }) {
   // Charter data prepare karna yacht data se - JSON structure ke according
   const charterData = {
     charterLocation:
-      yacht?.location?.city ||
-      yacht?.location?.name ||
-      "Location not specified",
+      yacht?.location?.city || yacht?.location?.name || "Location not specified",
     charterDurations: yacht?.prices?.map(
       (price) => `${price.charter_hours} ${price.charter_hours_label}`
     ) || ["4 hrs", "6 hrs"],
