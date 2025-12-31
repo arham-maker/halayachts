@@ -11,7 +11,7 @@ const STYLES = {
   modal: "bg-white rounded-2xl shadow-2xl w-full max-w-2xl max-h-[90vh] overflow-hidden flex flex-col",
   header: "bg-white p-6 border-b border-gray-200 flex items-center justify-between sticky top-0 z-10",
   heading: "text-2xl md:text-3xl font-light tracking-wide text-gray-900",
-  closeButton: "p-2 rounded-lg hover:bg-gray-100 transition-colors text-gray-500 hover:text-gray-700",
+  closeButton: "p-2 rounded-lg hover:bg-gray-100 transition-colors text-gray-500 hover:text-gray-700 cursor-pointer",
   content: "p-6 flex-1 overflow-y-auto",
   formGroup: "mb-6",
   label: "flex items-center gap-2 text-sm font-semibold text-gray-700 mb-2 tracking-wide",

@@ -18,6 +18,7 @@ import {
   WhatsappIcon,
 } from 'react-share';
 import BookingForm from './BookingForm';
+import CharterInquiryForm from './CharterInquiryForm';
 
 const CONTENT = {
   heading: {
@@ -105,8 +106,13 @@ export default function FeaturesSection({
   const [showCopyNotification, setShowCopyNotification] = useState(false);
   const [isDownloading, setIsDownloading] = useState(false);
   const [showBookingForm, setShowBookingForm] = useState(false);
+  const [showInquiryForm, setShowInquiryForm] = useState(false);
 
-  const hasPrices = prices?.length > 0;
+  // Check if prices are valid (not empty and at least one price has retail_cents > 0)
+  const hasValidPrices = prices?.length > 0 && prices.some(price => 
+    price.retail_cents && price.retail_cents > 0
+  );
+  const hasPrices = hasValidPrices;
   const hasBrochure = brochure && brochure.file_path;
   const hasBroker = broker && broker.broker_name;
   const hasBrokerImage = broker?.broker_image && broker.broker_image.trim();
@@ -246,18 +252,43 @@ export default function FeaturesSection({
             </div>
           )}
 
-          <h2 className={STYLES.heading}>
-            <span className={STYLES.secondaryText}>{headingPrefix}</span> {headingSuffix}
-          </h2>
+          {/* Only show heading, description, and divider if prices are valid */}
+          {hasValidPrices && (
+            <>
+              <h2 className={STYLES.heading}>
+                <span className={STYLES.secondaryText}>{headingPrefix}</span> {headingSuffix}
+              </h2>
 
-          <p className={STYLES.description}>
-            {featuresInfo}
-          </p>
+              <p className={STYLES.description}>
+                {featuresInfo}
+              </p>
 
-          <div className={STYLES.divider} />
+              <div className={STYLES.divider} />
+            </>
+          )}
 
-          {/* Broker Section - Moved above pricing note */}
-          {hasBroker && (
+          {/* Show heading, divider, and CTA button when prices are invalid */}
+          {!hasValidPrices && (
+            <>
+              <h2 className={STYLES.heading}>
+                <span className={STYLES.secondaryText}>Let's talk</span> for more details
+              </h2>
+              
+              <div className={STYLES.divider} />
+              
+              <div className="flex justify-start mt-6">
+                <button
+                  className={STYLES.bookButton}
+                  onClick={() => setShowInquiryForm(true)}
+                >
+                  Inquiry / Book Charter
+                </button>
+              </div>
+            </>
+          )}
+
+          {/* Broker Section - Only show if prices are valid */}
+          {hasValidPrices && hasBroker && (
             <div className={STYLES.brokerSection}>
               <div className={STYLES.brokerContent}>
                 {/* Broker Image - Only show if image exists */}
@@ -312,9 +343,12 @@ export default function FeaturesSection({
             </div>
           )}
 
-          <span className={STYLES.pricingNote}>
-            {pricingNote}
-          </span>
+          {/* Pricing Note - Only show if prices are valid */}
+          {hasValidPrices && (
+            <span className={STYLES.pricingNote}>
+              {pricingNote}
+            </span>
+          )}
 
           {hasPrices && (
             <div className={STYLES.pricingSection}>
@@ -435,6 +469,11 @@ export default function FeaturesSection({
         isOpen={showBookingForm}
         onClose={() => setShowBookingForm(false)}
         charterData={bookingData}
+      />
+
+      <CharterInquiryForm
+        isOpen={showInquiryForm}
+        onClose={() => setShowInquiryForm(false)}
       />
     </section>
   );
