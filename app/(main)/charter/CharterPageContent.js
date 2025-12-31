@@ -526,7 +526,7 @@ function CharterPageContent() {
             <div className="flex-shrink-0 lg:mt-0 mt-4">
               <button
                 onClick={() => setIsInquiryFormOpen(true)}
-                className="bg-text-primary text-center text-base p-3 sm:w-2xs w-40 md:text-base font-light tracking-wider rounded cursor-pointer hover:bg-opacity-90  text-white shadow-2xs hover:shadow-xl transition-all duration-300 transform hover:scale-105 active:scale-95 whitespace-nowrap"
+                className="bg-text-primary text-center text-base p-3 w-auto sm:w-2xs  md:text-base font-light tracking-wider rounded cursor-pointer hover:bg-opacity-90  text-white shadow-2xs hover:shadow-xl transition-all duration-300 transform hover:scale-105 active:scale-95 whitespace-nowrap"
               >
                 Inquiry / Book Charter
               </button>
