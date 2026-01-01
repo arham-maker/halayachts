@@ -45,6 +45,9 @@ const STYLES = {
   heading: "text-3xl md:text-6xl lg:text-6xl xl:text-[65px] font-light tracking-wide",
   secondaryText: "text-secondary",
   description: "text-base md:text-lg lg:text-xl tracking-wider font-light",
+  descriptionText: "transition-opacity duration-500 ease-in-out",
+  descriptionTextFade: "opacity-0",
+  descriptionTextVisible: "opacity-100",
   divider: "border-t border-gray-300",
   pricingNote: "text-base tracking-wider font-light",
   pricingSection: "grid grid-cols-1 lg:grid-cols-2 gap-6",
@@ -76,7 +79,8 @@ const STYLES = {
   brokerActions: "flex flex-col sm:flex-row gap-3",
   brokerButton: "flex items-center justify-center gap-2 px-5 py-2 rounded text-white font-medium transition-colors",
   callButton: "bg-text-primary text-white text-base md:text-base font-light tracking-wider rounded cursor-pointer hover:bg-opacity-90 transition duration-300",
-  emailButton: "bg-text-primary text-white text-base md:text-base font-light tracking-wider rounded cursor-pointer hover:bg-opacity-90 transition duration-300"
+  emailButton: "bg-text-primary text-white text-base md:text-base font-light tracking-wider rounded cursor-pointer hover:bg-opacity-90 transition duration-300",
+  seeMoreLink: "text-[#c8a75c] hover:text-[#b8964a] cursor-pointer font-medium transition-colors duration-300  ml-1"
 };
 
 const formatPrice = (cents, currency) => {
@@ -107,6 +111,8 @@ export default function FeaturesSection({
   const [isDownloading, setIsDownloading] = useState(false);
   const [showBookingForm, setShowBookingForm] = useState(false);
   const [showInquiryForm, setShowInquiryForm] = useState(false);
+  const [isTextExpanded, setIsTextExpanded] = useState(false);
+  const [isTextFading, setIsTextFading] = useState(false);
 
   // Check if prices are valid (not empty and at least one price has retail_cents > 0)
   const hasValidPrices = prices?.length > 0 && prices.some(price => 
@@ -238,6 +244,24 @@ export default function FeaturesSection({
   // Check if location exists for display
   const hasLocation = charterLocation && charterLocation !== "Location not specified";
 
+  // Text truncation logic for featuresInfo
+  const MAX_CHARACTERS = 250;
+  const shouldTruncate = featuresInfo && featuresInfo.length > MAX_CHARACTERS;
+  const truncatedText = shouldTruncate && !isTextExpanded 
+    ? featuresInfo.substring(0, MAX_CHARACTERS) + '...'
+    : featuresInfo;
+
+  // Handle text expansion with fade transition
+  const handleTextToggle = () => {
+    setIsTextFading(true);
+    setTimeout(() => {
+      setIsTextExpanded(!isTextExpanded);
+      setTimeout(() => {
+        setIsTextFading(false);
+      }, 50);
+    }, 250); // Half of transition duration for smooth fade
+  };
+
   return (
     <section className={STYLES.section}>
       <div className={STYLES.container}>
@@ -259,9 +283,27 @@ export default function FeaturesSection({
                 <span className={STYLES.secondaryText}>{headingPrefix}</span> {headingSuffix}
               </h2>
 
-              <p className={STYLES.description}>
-                {featuresInfo}
-              </p>
+              <div className={STYLES.description}>
+                <p>
+                  <span 
+                    className={`${STYLES.descriptionText} ${
+                      isTextFading ? STYLES.descriptionTextFade : STYLES.descriptionTextVisible
+                    }`}
+                  >
+                    {truncatedText}
+                  </span>
+                  {shouldTruncate && (
+                    <button
+                      onClick={handleTextToggle}
+                      className={STYLES.seeMoreLink}
+                      aria-label={isTextExpanded ? "Show less" : "See more"}
+                      type="button"
+                    >
+                      {isTextExpanded ? ' Show Less' : ' See More'}
+                    </button>
+                  )}
+                </p>
+              </div>
 
               <div className={STYLES.divider} />
             </>
