@@ -1,7 +1,7 @@
 'use client';
 
 const STYLES = {
-    mapContainer: "w-full h-96 lg:h-[300px] overflow-hidden ",
+    mapContainer: "w-full h-96 lg:h-[600px] overflow-hidden ",
     mapFrame: "w-full h-full border-0",
 };
 
@@ -16,7 +16,7 @@ export default function LocationMap({ location }) {
         return null;
     }
 
-    const mapUrl = `https://maps.google.com/maps?q=${location.latitude},${location.longitude}&z=15&output=embed`;
+    const mapUrl = `https://maps.google.com/maps?q=${location.latitude},${location.longitude}&z=12&output=embed`;
 
     return (
         <section>
