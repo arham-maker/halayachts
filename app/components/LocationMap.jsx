@@ -16,7 +16,7 @@ export default function LocationMap({ location }) {
         return null;
     }
 
-    const mapUrl = `https://maps.google.com/maps?q=${location.latitude},${location.longitude}&z=12&output=embed`;
+    const mapUrl = `https://maps.google.com/maps?q=${location.latitude},${location.longitude}&z=08&output=embed`;
 
     return (
         <section>
