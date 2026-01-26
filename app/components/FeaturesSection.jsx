@@ -17,6 +17,8 @@ import {
   TwitterIcon,
   WhatsappIcon,
 } from 'react-share';
+import { toast, ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 import BookingForm from './BookingForm';
 import CharterInquiryForm from './CharterInquiryForm';
 
@@ -229,9 +231,35 @@ export default function FeaturesSection({
     }
   };
 
+  // Check if device is mobile
+  const isMobile = () => {
+    if (typeof window === 'undefined') return false;
+    return window.innerWidth < 768 || /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+  };
+
   const handleCallBroker = () => {
     if (broker?.broker_phone_number) {
-      window.open(`tel:${broker.broker_phone_number}`, '_self');
+      if (isMobile()) {
+        // Mobile: Direct call
+        window.open(`tel:${broker.broker_phone_number}`, '_self');
+      } else {
+        // Desktop: Show toast with phone number
+        toast.info(
+          <div className="p-2">
+            <div className="font-semibold mb-2 text-gray-800">Broker Phone Number:</div>
+            <div className="text-xl font-medium text-[#c8a75c]">{broker.broker_phone_number}</div>
+          </div>,
+          {
+            position: "top-right",
+            autoClose: 10000,
+            hideProgressBar: true,
+            closeOnClick: true,
+            pauseOnHover: true,
+            draggable: true,
+            theme: "light",
+          }
+        );
+      }
     }
   };
 
@@ -544,6 +572,20 @@ export default function FeaturesSection({
       <CharterInquiryForm
         isOpen={showInquiryForm}
         onClose={() => setShowInquiryForm(false)}
+      />
+
+      <ToastContainer
+        position="top-right"
+        autoClose={10000}
+        hideProgressBar={false}
+        newestOnTop={false}
+        closeOnClick
+        rtl={false}
+        pauseOnFocusLoss
+        draggable
+        pauseOnHover
+        theme="light"
+        style={{ zIndex: 10000 }}
       />
     </section>
   );
