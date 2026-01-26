@@ -113,6 +113,7 @@ export default function FeaturesSection({
   const [showInquiryForm, setShowInquiryForm] = useState(false);
   const [isTextExpanded, setIsTextExpanded] = useState(false);
   const [isTextFading, setIsTextFading] = useState(false);
+  const [shareUrl, setShareUrl] = useState('');
 
   // Check if prices are valid (not empty and at least one price has retail_cents > 0)
   const hasValidPrices = prices?.length > 0 && prices.some(price => 
@@ -123,8 +124,14 @@ export default function FeaturesSection({
   const hasBroker = broker && broker.broker_name;
   const hasBrokerImage = broker?.broker_image && broker.broker_image.trim();
 
-  const shareUrl = typeof window !== 'undefined' ? window.location.href : '';
-  const shareTitle = "Check out this amazing charter!";
+  const shareTitle = title || "Check out this amazing charter!";
+
+  // Set share URL on mount and when window is available
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      setShareUrl(window.location.href);
+    }
+  }, []);
 
   const shareOptions = [
     {
@@ -449,6 +456,27 @@ export default function FeaturesSection({
                         {shareOptions.map((option, index) => {
                           const ShareButton = option.component;
                           const ShareIcon = option.icon;
+
+                          // Special handling for EmailShareButton
+                          if (option.name === 'Email') {
+                            return (
+                              <div
+                                key={`share-${option.name}-${index}`}
+                                className={STYLES.shareOption}
+                                onClick={() => {
+                                  setShowShareOptions(false);
+                                  // Ensure URL is available
+                                  const url = shareUrl || (typeof window !== 'undefined' ? window.location.href : '');
+                                  const subject = encodeURIComponent(shareTitle);
+                                  const body = encodeURIComponent(`Check out this amazing charter: ${url}`);
+                                  window.location.href = `mailto:?subject=${subject}&body=${body}`;
+                                }}
+                              >
+                                <ShareIcon size={32} round />
+                                <span className={STYLES.shareLabel}>{option.name}</span>
+                              </div>
+                            );
+                          }
 
                           return (
                             <ShareButton
