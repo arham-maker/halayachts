@@ -58,8 +58,7 @@ const validateField = (name, value) => {
       return '';
 
     case 'message':
-      if (!value.trim()) return 'Message is required';
-      if (value.trim().length < 10) return 'Message must be at least 10 characters long';
+      if (value.trim() && value.trim().length < 10) return 'Message must be at least 10 characters long';
       return '';
 
     default:
@@ -392,7 +391,7 @@ const ContactForm = ({ isOpen, onClose }) => {
                   {/* Message Field */}
                   <div>
                     <label className="block text-base md:text-lg leading-relaxed tracking-wider font-light text-white mb-2">
-                      Message *
+                      Message
                     </label>
                     <div className="relative">
                       <textarea
