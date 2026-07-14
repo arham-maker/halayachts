@@ -104,6 +104,63 @@ export default function YachtForm({ yachtId, initialData = null }) {
     };
   }, []);
 
+  // Re-link location select after locations load (handles missing/corrupted location.id)
+  useEffect(() => {
+    if (locationsLoading || locations.length === 0) return;
+
+    setFormData((prev) => {
+      const existingIds = (prev.location_ids?.length
+        ? prev.location_ids
+        : prev.location?.id != null && prev.location.id !== ''
+          ? [String(prev.location.id)]
+          : []
+      ).map(String);
+
+      let matchedIds = existingIds.filter((id) =>
+        locations.some((loc) => String(loc.id) === id)
+      );
+
+      // Fall back to matching by city/title when id was lost (e.g. parseInt on slug)
+      if (!matchedIds.length && (prev.location?.city || prev.location?.name)) {
+        const city = String(prev.location.city || prev.location.name).trim().toLowerCase();
+        const match = locations.find((loc) => {
+          const title = String(loc.title || '').trim().toLowerCase();
+          return (
+            title === city ||
+            title.includes(city) ||
+            city.includes(title)
+          );
+        });
+        if (match) matchedIds = [String(match.id)];
+      }
+
+      if (!matchedIds.length) return prev;
+
+      const primary = locations.find((loc) => String(loc.id) === matchedIds[0]);
+      if (!primary) return prev;
+
+      const alreadyLinked =
+        prev.location_ids?.length === matchedIds.length &&
+        prev.location_ids.every((id, i) => String(id) === matchedIds[i]) &&
+        String(prev.location?.id) === String(primary.id);
+
+      if (alreadyLinked) return prev;
+
+      return {
+        ...prev,
+        location_ids: matchedIds,
+        location: {
+          ...prev.location,
+          id: primary.id,
+          city: prev.location.city || primary.title,
+          name: prev.location.name || primary.title,
+          latitude: prev.location.latitude ?? '',
+          longitude: prev.location.longitude ?? '',
+        },
+      };
+    });
+  }, [locations, locationsLoading]);
+
   // Load yacht data if editing
   useEffect(() => {
     if (yachtId && yachtId !== 'new') {
@@ -170,7 +227,15 @@ export default function YachtForm({ yachtId, initialData = null }) {
             state_code: '',
             zip_code: ''
           },
-          location_ids: yacht.location_ids || (yacht.location && yacht.location.id ? [String(yacht.location.id)] : []),
+          location_ids: (() => {
+            if (yacht.location_ids?.length) {
+              return yacht.location_ids.map(String);
+            }
+            if (yacht.location?.id != null && yacht.location.id !== '' && !Number.isNaN(yacht.location.id)) {
+              return [String(yacht.location.id)];
+            }
+            return [];
+          })(),
           prices: yacht.prices || [],
           broker: (() => {
             if (!yacht.broker) {
@@ -445,6 +510,15 @@ export default function YachtForm({ yachtId, initialData = null }) {
 
   const preparePayload = (status) => {
     const { location_ids, ...rest } = formData;
+    const locationId = formData.location?.id;
+
+    // Location IDs are slug strings (e.g. "miami-florida"), not always numbers
+    const normalizedLocationId =
+      locationId === '' || locationId === null || locationId === undefined
+        ? undefined
+        : /^\d+$/.test(String(locationId))
+          ? parseInt(locationId, 10)
+          : String(locationId);
 
     return {
       ...rest,
@@ -458,9 +532,13 @@ export default function YachtForm({ yachtId, initialData = null }) {
       min_duration: formData.min_duration ? parseInt(formData.min_duration) : undefined,
       location: {
         ...formData.location,
-        id: formData.location.id ? parseInt(formData.location.id) : undefined,
-        latitude: formData.location.latitude ? parseFloat(formData.location.latitude) : undefined,
-        longitude: formData.location.longitude ? parseFloat(formData.location.longitude) : undefined
+        id: normalizedLocationId,
+        latitude: formData.location.latitude !== '' && formData.location.latitude != null
+          ? parseFloat(formData.location.latitude)
+          : undefined,
+        longitude: formData.location.longitude !== '' && formData.location.longitude != null
+          ? parseFloat(formData.location.longitude)
+          : undefined,
       },
       prices: formData.prices.filter(p => p && Object.keys(p).length > 0),
       amenities: formData.amenities.filter(a => a && (a.name || a.code)),
@@ -490,13 +568,61 @@ export default function YachtForm({ yachtId, initialData = null }) {
     e.preventDefault();
     try {
       // Require a linked location for new/updated yachts
-      if (!formData.location || !formData.location.id) {
+      const hasLocationId =
+        formData.location?.id !== '' &&
+        formData.location?.id != null &&
+        !(typeof formData.location?.id === 'number' && Number.isNaN(formData.location.id));
+      const hasSelectedLocations = formData.location_ids?.length > 0;
+      const hasLocationCity = Boolean(formData.location?.city);
+
+      if (!(hasLocationId || hasSelectedLocations || hasLocationCity)) {
         alert('Please select a location for this yacht.');
         return;
       }
 
       setLoading(true);
       const yachtPayload = preparePayload(status);
+
+      const resolveLocationId = (id) => {
+        if (id === '' || id == null) return undefined;
+        return /^\d+$/.test(String(id)) ? parseInt(id, 10) : String(id);
+      };
+
+      // Guarantee location.id on payload (slug IDs must not be parseInt'd away)
+      if (!yachtPayload.location?.id && formData.location_ids?.length) {
+        const primaryId = formData.location_ids[0];
+        const selectedLoc = locations.find((loc) => String(loc.id) === String(primaryId));
+        if (selectedLoc) {
+          yachtPayload.location = {
+            ...yachtPayload.location,
+            id: resolveLocationId(selectedLoc.id),
+            city: yachtPayload.location?.city || selectedLoc.title,
+            name: yachtPayload.location?.name || selectedLoc.title,
+          };
+        }
+      } else if (!yachtPayload.location?.id && formData.location?.city) {
+        const city = String(formData.location.city).trim().toLowerCase();
+        const selectedLoc = locations.find((loc) => {
+          const title = String(loc.title || '').trim().toLowerCase();
+          return title === city || title.includes(city) || city.includes(title);
+        });
+        if (selectedLoc) {
+          yachtPayload.location = {
+            ...yachtPayload.location,
+            id: resolveLocationId(selectedLoc.id),
+            city: yachtPayload.location?.city || selectedLoc.title,
+            name: yachtPayload.location?.name || selectedLoc.title,
+          };
+        }
+      } else if (yachtPayload.location?.id) {
+        yachtPayload.location.id = resolveLocationId(yachtPayload.location.id);
+      }
+
+      if (!yachtPayload.location?.id && !yachtPayload.location?.city) {
+        alert('Please select a location for this yacht.');
+        setLoading(false);
+        return;
+      }
 
       const url = yachtId && yachtId !== 'new' 
         ? `/api/yachts/${yachtId}`
@@ -1055,7 +1181,7 @@ export default function YachtForm({ yachtId, initialData = null }) {
 
                     const primaryId = selectedValues[0];
                     const selectedLoc = locations.find(
-                      (loc) => String(loc.id) === primaryId
+                      (loc) => String(loc.id) === String(primaryId)
                     );
 
                     if (!selectedLoc) {
@@ -1075,8 +1201,9 @@ export default function YachtForm({ yachtId, initialData = null }) {
                         // Use the title as city/name so front-end location pages can match correctly
                         city: selectedLoc.title,
                         name: selectedLoc.title,
-                        latitude: selectedLoc.latitude ?? '',
-                        longitude: selectedLoc.longitude ?? '',
+                        // Keep existing coordinates when the location record has none
+                        latitude: selectedLoc.latitude ?? prev.location.latitude ?? '',
+                        longitude: selectedLoc.longitude ?? prev.location.longitude ?? '',
                       },
                     }));
                   }}
@@ -1094,7 +1221,7 @@ export default function YachtForm({ yachtId, initialData = null }) {
                     </option>
                   )}
                   {locations.map((loc) => (
-                    <option key={loc._id} value={loc.id} className='mt-0.5'>
+                    <option key={loc._id || loc.id} value={String(loc.id)} className='mt-0.5'>
                       {loc.title}
                     </option>
                   ))}

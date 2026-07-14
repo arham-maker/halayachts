@@ -65,7 +65,7 @@ const STYLES = {
   seasonTabs: "flex flex-wrap gap-2 mb-4",
   seasonTab: "px-4 py-2 text-sm md:text-base font-light tracking-wider rounded-lg border border-gray-300 cursor-pointer transition-all duration-200 bg-white text-gray-700 hover:border-[#c8a75c]",
   seasonTabActive: "px-4 py-2 text-sm md:text-base font-light tracking-wider rounded-lg border-2 border-[#c8a75c] bg-[#c8a75c]/10 text-[#c8a75c] cursor-pointer transition-all duration-200",
-  seasonDates: "text-xs text-gray-500 tracking-wider mt-1 text-center",
+  seasonDates: "text-base font-semibold text-gray-800 tracking-wider mt-2 text-left",
   priceBox: "bg-black border border-gray-300 rounded-lg lg:p-6 p-3 hover:shadow-md transition-shadow",
   priceContent: "flex flex-col items-center gap-1",
   priceAmount: "text-3xl font-bold text-white tracking-wider",
