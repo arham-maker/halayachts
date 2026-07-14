@@ -95,7 +95,9 @@ export default function YachtDetailPage({ params }) {
     charterLocation:
       yacht?.location?.city || yacht?.location?.name || "Location not specified",
     charterDurations: yacht?.prices?.map(
-      (price) => `${price.charter_hours} ${price.charter_hours_label}`
+      (price) =>
+        price.label ||
+        `${price.charter_hours} ${price.charter_hours_label || "hrs"}`.trim()
     ) || ["4 hrs", "6 hrs"],
     maxPassengers: yacht?.guests || 6,
   };

@@ -227,6 +227,16 @@ async function sendBookingNotification(booking) {
                       <td style="padding:6px 0;width:100px;color:#6b7280;font-weight:500;">Location</td>
                       <td style="padding:6px 0;">${booking.location}</td>
                     </tr>
+                    ${booking.season ? `
+                    <tr>
+                      <td style="padding:6px 0;width:100px;color:#6b7280;font-weight:500;">Season</td>
+                      <td style="padding:6px 0;">${String(booking.season).charAt(0).toUpperCase() + String(booking.season).slice(1)} Season</td>
+                    </tr>` : ''}
+                    ${booking.duration ? `
+                    <tr>
+                      <td style="padding:6px 0;width:100px;color:#6b7280;font-weight:500;">Duration</td>
+                      <td style="padding:6px 0;">${booking.duration}</td>
+                    </tr>` : ''}
                     <tr>
                       <td style="padding:6px 0;width:100px;color:#6b7280;font-weight:500;">Passengers</td>
                       <td style="padding:6px 0;">
@@ -324,6 +334,8 @@ async function sendBookingNotification(booking) {
       <li>Yacht: ${booking.yachtTitle}</li>
       <li>Charter Type: ${booking.charterType}</li>
       <li>Location: ${booking.location}</li>
+      ${booking.season ? `<li>Season: ${String(booking.season).charAt(0).toUpperCase() + String(booking.season).slice(1)} Season</li>` : ''}
+      ${booking.duration ? `<li>Duration: ${booking.duration}</li>` : ''}
       <li>Dates: ${charterDates}</li>
       <li>Guests: ${booking.passengers}</li>
     </ul>

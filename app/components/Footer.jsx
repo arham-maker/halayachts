@@ -10,9 +10,9 @@ const Footer = () => {
     name: "Hala Yachts",
     description: "HalaYachts delivers bespoke, luxury yacht charters across the globe. Every voyage is uniquely crafted for those who seek extraordinary experiences, not just travel.",
     email: "info@halayachts.com",
-    phone: "+1 847-845-0227",
+    phone: "+1-847-845-0227",
     address: "673 NE 3rd Avenue Suite 432, Fort Lauderdale, FL 33304, USA.",
-    copyright: "© 2025 HalaYachts. All rights reserved."
+    copyright: `© ${new Date().getFullYear()} HalaYachts. All rights reserved.`
   };
 
   const QUICK_LINKS = [

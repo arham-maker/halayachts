@@ -7,7 +7,7 @@ const formatSpecValue = (key, value) => {
     return `${value}`;
   }
   if (key === 'cruising_knots') {
-    return `${value} knots`;
+    return String(value).replace(/\s*knots?/i, '').trim();
   }
   return value;
 };
@@ -17,6 +17,8 @@ const CONTENT = {
 };
 
 const formatLabel = (key) => {
+  if (key === 'cruising_knots') return 'Cruising Speed';
+
   return key
     .replace(/_/g, ' ')
     .replace(/\b\w/g, l => l.toUpperCase());

@@ -11,13 +11,24 @@ import { GiBackwardTime } from "react-icons/gi";
 import { CiCalendarDate } from "react-icons/ci";
 import { IoTimeOutline } from "react-icons/io5";
 import { GoPeople } from 'react-icons/go';
+import { FiX } from 'react-icons/fi';
+import {
+  getAvailableSeasons,
+  getDefaultSeason,
+  filterPricesBySeason,
+  hasSeasonPricing,
+  formatPriceDuration,
+  SEASON_LABELS,
+} from '@/lib/seasons';
 
 const STYLES = {
   overlay: "fixed inset-0 z-50 flex justify-end ",
   modal: "bg-white w-full max-w-md sm:h-[95vh] h-full sm:mt-4 sm:mr-4 rounded-xl shadow-2xl overflow-hidden flex flex-col", 
-  header: "bg-white p-5 border-b border-gray-100 sticky top-0 z-10 flex flex-col gap-1",
+  header: "bg-white p-5 border-b border-gray-100 sticky top-0 z-10 flex items-start justify-between gap-3",
+  headerText: "flex flex-col gap-1 min-w-0",
   heading: "text-3xl font-light tracking-wider",
   subheading: "text-sm md:text-base lg:text-lg tracking-wider font-light",
+  closeButton: "p-2 -mr-1 -mt-1 rounded-full hover:bg-gray-100 transition duration-200 shrink-0 cursor-pointer",
   content: "p-5 flex-1 overflow-y-auto", 
   buttonContainer: "p-5 border-t border-gray-200 bg-white sticky bottom-0", 
   section: "mb-5",
@@ -53,6 +64,10 @@ const STYLES = {
   checkboxSelected: "!border-[#c8a75c] bg-[rgba(200,167,92,0.1)] shadow-md ",
   checkboxText: "flex flex-col items-center",
   checkboxDuration: "text-base font-light tracking-wider",
+  seasonTabs: "flex flex-wrap gap-2",
+  seasonTab: "px-4 py-2 text-sm font-light tracking-wider rounded-lg border border-gray-300 cursor-pointer transition-all duration-200 bg-white text-gray-700 hover:border-[#c8a75c]",
+  seasonTabActive: "px-4 py-2 text-sm font-light tracking-wider rounded-lg border-2 border-[#c8a75c] bg-[rgba(200,167,92,0.1)] text-[#c8a75c] cursor-pointer transition-all duration-200",
+  seasonDates: "text-xs text-gray-500 tracking-wider",
   calendarContainer: "mt-2 border border-gray-200 rounded-lg overflow-hidden bg-white shadow-lg",
   calendar: "w-full border-0",
   calendarTile: "rounded-lg hover:bg-[#c8a75c]/20",
@@ -174,6 +189,7 @@ export default function BookingForm({
   const [formData, setFormData] = useState({
     charterType: 'day',
     location: charterData?.location || '',
+    season: charterData?.selectedSeason || getDefaultSeason(charterData?.prices) || '',
     duration: '',
     date: new Date(),
     time: '',
@@ -201,9 +217,56 @@ export default function BookingForm({
   const checkInCalendarRef = useRef(null);
   const checkOutCalendarRef = useRef(null);
 
-  const availableDurations = charterData?.durations || [];
+  const availableSeasons = getAvailableSeasons(charterData?.prices);
+  const showSeasonTabs = hasSeasonPricing(charterData?.prices);
+  const activeSeason =
+    formData.season ||
+    charterData?.selectedSeason ||
+    getDefaultSeason(charterData?.prices);
+
+  const seasonPrices = filterPricesBySeason(charterData?.prices, activeSeason);
+  const availableDurations = showSeasonTabs
+    ? seasonPrices.map((price) => formatPriceDuration(price)).filter(Boolean)
+    : (charterData?.durations ||
+        (charterData?.prices || [])
+          .map((price) => formatPriceDuration(price))
+          .filter(Boolean));
+  const activeSeasonDates =
+    seasonPrices.find((price) => price.season_dates)?.season_dates || "";
 
   const maxPassengers = charterData?.maxPassengers || 10;
+
+  useEffect(() => {
+    if (isOpen && charterData) {
+      setFormData((prev) => ({
+        ...prev,
+        location: charterData.location || prev.location,
+        yachtTitle: charterData.yachtTitle || prev.yachtTitle,
+        season:
+          charterData.selectedSeason ||
+          getDefaultSeason(charterData.prices) ||
+          prev.season ||
+          '',
+      }));
+    }
+  }, [
+    isOpen,
+    charterData?.location,
+    charterData?.yachtTitle,
+    charterData?.selectedSeason,
+    charterData?.prices,
+  ]);
+
+  // Clear duration if it no longer exists for the selected season
+  useEffect(() => {
+    if (
+      formData.duration &&
+      availableDurations.length > 0 &&
+      !availableDurations.includes(formData.duration)
+    ) {
+      setFormData((prev) => ({ ...prev, duration: '' }));
+    }
+  }, [availableDurations, formData.duration]);
 
   useEffect(() => {
     const handleClickOutside = (event) => {
@@ -239,6 +302,7 @@ export default function BookingForm({
         setFormData({
           charterType: 'day',
           location: charterData?.location || '',
+          season: charterData?.selectedSeason || getDefaultSeason(charterData?.prices) || '',
           duration: '',
           date: new Date(),
           time: '',
@@ -280,13 +344,15 @@ export default function BookingForm({
   const handleInputChange = (field, value) => {
     setFormData(prev => ({
       ...prev,
-      [field]: value
+      [field]: value,
+      ...(field === 'season' ? { duration: '' } : {}),
     }));
     // Clear error when user starts typing/selecting
-    if (errors[field]) {
+    if (errors[field] || (field === 'season' && errors.duration)) {
       setErrors(prev => {
         const newErrors = { ...prev };
         delete newErrors[field];
+        if (field === 'season') delete newErrors.duration;
         return newErrors;
       });
     }
@@ -442,11 +508,12 @@ export default function BookingForm({
     setIsSubmitting(true);
 
     try {
-      // Prepare booking data for MongoDB
+  // Prepare booking data for MongoDB
       const bookingData = {
         ...formData,
         yachtTitle: charterData?.yachtTitle || 'Unknown Yacht',
         location: charterData?.location || '',
+        season: showSeasonTabs ? (activeSeason || formData.season || '') : '',
         // Convert dates to ISO strings for MongoDB
         date: formData.date instanceof Date ? formData.date.toISOString() : formData.date,
         checkInDate: formData.checkInDate instanceof Date ? formData.checkInDate.toISOString() : formData.checkInDate,
@@ -561,8 +628,18 @@ export default function BookingForm({
                 variants={contentVariants}
               >
                 <div className={STYLES.header}>
-                  <h2 className={STYLES.heading}>Book Your Charter</h2>
-                  <p className={STYLES.subheading}>Complete your booking in just a few steps</p>
+                  <div className={STYLES.headerText}>
+                    <h2 className={STYLES.heading}>Book Your Charter</h2>
+                    <p className={STYLES.subheading}>Complete your booking in just a few steps</p>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={onClose}
+                    className={STYLES.closeButton}
+                    aria-label="Close booking form"
+                  >
+                    <FiX size={24} className="text-gray-500" />
+                  </button>
                 </div>
 
                 <div className={STYLES.content}>
@@ -611,25 +688,58 @@ export default function BookingForm({
 
                       {formData.charterType === 'day' ? (
                         <>
+                          {showSeasonTabs && (
+                            <div className={STYLES.formGroup}>
+                              <label className={STYLES.label}>
+                                Select Season<span className={STYLES.requiredAsterisk}>*</span>
+                              </label>
+                              <div className={STYLES.seasonTabs}>
+                                {availableSeasons.map((season) => (
+                                  <button
+                                    key={season.value}
+                                    type="button"
+                                    className={
+                                      activeSeason === season.value
+                                        ? STYLES.seasonTabActive
+                                        : STYLES.seasonTab
+                                    }
+                                    onClick={() => handleInputChange('season', season.value)}
+                                  >
+                                    {season.label}
+                                  </button>
+                                ))}
+                              </div>
+                              {activeSeasonDates && (
+                                <p className={STYLES.seasonDates}>{activeSeasonDates}</p>
+                              )}
+                            </div>
+                          )}
+
                           <div className={STYLES.formGroup}>
                             <label className={STYLES.label}>
                               <span><GiBackwardTime /> </span> Select Duration<span className={STYLES.requiredAsterisk}>*</span>
                             </label>
                             {errors.duration && <p className={STYLES.errorMessage}>{errors.duration}</p>}
                             <div className={`${STYLES.checkboxGroup} ${errors.duration ? 'border-2 border-red-500 rounded-lg p-2' : ''}`}>
-                              {availableDurations.map((duration, index) => (
-                                <motion.div
-                                  key={index}
-                                  className={`${STYLES.checkboxLabel} ${formData.duration === duration ? STYLES.checkboxSelected : ''} ${errors.duration ? 'border-red-300' : ''}`}
-                                  whileHover={{ scale: 1.02 }}
-                                  whileTap={{ scale: 0.98 }}
-                                  onClick={() => handleInputChange('duration', duration)}
-                                >
-                                  <div className={STYLES.checkboxText}>
-                                    <div className={STYLES.checkboxDuration}>{duration}</div>
-                                  </div>
-                                </motion.div>
-                              ))}
+                              {availableDurations.length > 0 ? (
+                                availableDurations.map((duration, index) => (
+                                  <motion.div
+                                    key={`${activeSeason || 'all'}-${duration}-${index}`}
+                                    className={`${STYLES.checkboxLabel} ${formData.duration === duration ? STYLES.checkboxSelected : ''} ${errors.duration ? 'border-red-300' : ''}`}
+                                    whileHover={{ scale: 1.02 }}
+                                    whileTap={{ scale: 0.98 }}
+                                    onClick={() => handleInputChange('duration', duration)}
+                                  >
+                                    <div className={STYLES.checkboxText}>
+                                      <div className={STYLES.checkboxDuration}>{duration}</div>
+                                    </div>
+                                  </motion.div>
+                                ))
+                              ) : (
+                                <p className="text-sm text-gray-500 tracking-wider">
+                                  No durations available for {SEASON_LABELS[activeSeason] || 'this season'}.
+                                </p>
+                              )}
                             </div>
                           </div>
 

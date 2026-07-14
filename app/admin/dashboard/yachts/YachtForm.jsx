@@ -1287,6 +1287,29 @@ export default function YachtForm({ yachtId, initialData = null }) {
                       />
                     </div>
                     <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2 tracking-wide">Season</label>
+                      <select
+                        value={price.season || ''}
+                        onChange={(e) => handleArrayFieldChange('prices', index, { ...price, season: e.target.value })}
+                        className="w-full px-4 py-2.5 border border-gray-300 rounded-lg text-sm tracking-wide focus:outline-none focus:ring-2 focus:ring-[#c8a75c] focus:border-transparent transition bg-white"
+                      >
+                        <option value="">No season (always shown)</option>
+                        <option value="high">High Season</option>
+                        <option value="mid">Mid Season</option>
+                        <option value="low">Low Season</option>
+                      </select>
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2 tracking-wide">Season Dates (optional)</label>
+                      <input
+                        type="text"
+                        placeholder="e.g., Jul 01 / Aug 31"
+                        value={price.season_dates || ''}
+                        onChange={(e) => handleArrayFieldChange('prices', index, { ...price, season_dates: e.target.value })}
+                        className="w-full px-4 py-2.5 border border-gray-300 rounded-lg text-sm tracking-wide focus:outline-none focus:ring-2 focus:ring-[#c8a75c] focus:border-transparent transition"
+                      />
+                    </div>
+                    <div>
                       <label className="block text-sm font-medium text-gray-700 mb-2 tracking-wide">Half Day / Full Day</label>
                       <input
                         type="text"
@@ -1308,7 +1331,7 @@ export default function YachtForm({ yachtId, initialData = null }) {
               ))}
               <button
                 type="button"
-                onClick={() => addArrayItem('prices', { retail_currency: '', retail_cents: 0, charter_hours: 0, charter_hours_label: '', label: '', half_day: '', full_day: '' })}
+                onClick={() => addArrayItem('prices', { retail_currency: '', retail_cents: 0, charter_hours: 0, charter_hours_label: '', label: '', half_day: '', full_day: '', season: '', season_dates: '' })}
                 className="w-full py-3 border-2 border-dashed border-gray-300 rounded-lg text-[#c8a75c] text-sm tracking-wide hover:border-[#c8a75c] hover:bg-[#c8a75c] hover:text-white transition font-medium"
               >
                 + Add Price
@@ -1459,7 +1482,7 @@ export default function YachtForm({ yachtId, initialData = null }) {
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2 tracking-wide">Cruising Knots</label>
+                <label className="block text-sm font-medium text-gray-700 mb-2 tracking-wide">Cruising Speed</label>
                 <input
                   type="text"
                   name="specifications.cruising_knots"

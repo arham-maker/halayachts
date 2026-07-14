@@ -254,8 +254,8 @@ import Banner from "../../../components/Banner";
 import YachtCard from "../../../components/YachtCard";
 import Link from "next/link";
 import SearchFilter from "../../../components/SearchFilter";
-import { useParams } from "next/navigation";
-import { useState, useMemo, useEffect } from "react";
+import { useParams, useRouter } from "next/navigation";
+import { useState, useMemo, useEffect, useCallback } from "react";
 
 // HTML Constants for consistent styling
 const PAGE_STYLES = {
@@ -342,13 +342,14 @@ const EmptyState = ({ location, locationName }) => (
 
 export default function LocationDetail() {
   const params = useParams();
+  const router = useRouter();
   const { city } = params;
   
   const [locationsData, setLocationsData] = useState([]);
   const [yachtsData, setYachtsData] = useState([]);
   const [loading, setLoading] = useState(true);
   const [filters, setFilters] = useState({
-    location: "current",
+    location: "all",
     duration: "all",
     length: "all",
     budget: "all",
@@ -399,30 +400,39 @@ export default function LocationDetail() {
   // Find current location
   const location = locationsData.find((loc) => loc.id === city);
 
-  // Get all yachts for current location
-  const allLocationYachts = useMemo(
-    () => {
-      if (!location) return [];
-      
-      return yachtsData.filter((yacht) => {
-        const yachtLocation = yacht.location?.city;
-        const currentLocation = location.title;
-
-        return (
-          yachtLocation === currentLocation ||
-          yachtLocation?.includes(location.title.split(",")[0]) ||
-          currentLocation.includes(yachtLocation?.split(",")[0])
-        );
-      });
-    },
-    [location, yachtsData]
-  );
+  // Keep location filter synced with the current page
+  useEffect(() => {
+    if (location?.title) {
+      setFilters((prev) =>
+        prev.location === location.title
+          ? prev
+          : { ...prev, location: location.title }
+      );
+    }
+  }, [location?.title]);
 
   // Filter yachts based on selected filters
   const filteredYachts = useMemo(() => {
     if (!location) return [];
     
-    return allLocationYachts.filter((yacht) => {
+    return yachtsData.filter((yacht) => {
+      // Location filter
+      if (filters.location !== "all") {
+        const yachtLocation = yacht.location?.city?.toLowerCase().trim() || "";
+        const yachtCountry = yacht.location?.country?.toLowerCase().trim() || "";
+        const filterLocation = filters.location.toLowerCase().trim();
+
+        const locationMatch =
+          yachtLocation === filterLocation ||
+          yachtLocation.includes(filterLocation) ||
+          filterLocation.includes(yachtLocation) ||
+          yachtCountry.includes(filterLocation) ||
+          yachtLocation.replace(/\s+/g, "").includes(filterLocation.replace(/\s+/g, "")) ||
+          filterLocation.replace(/\s+/g, "").includes(yachtLocation.replace(/\s+/g, ""));
+
+        if (!locationMatch) return false;
+      }
+
       // Duration filter
       if (filters.duration !== "all") {
         const filterDuration = parseInt(filters.duration);
@@ -477,12 +487,28 @@ export default function LocationDetail() {
 
       return true;
     });
-  }, [allLocationYachts, filters, location]);
+  }, [yachtsData, filters, location]);
 
-  // Handle filter changes
-  const handleFilterChange = (newFilters) => {
+  // Handle filter changes — navigate when a different location is selected
+  const handleFilterChange = useCallback((newFilters) => {
+    const selectedLocation = newFilters.location;
+
+    if (selectedLocation === "all") {
+      router.push("/charter");
+      return;
+    }
+
+    const matchedLocation = locationsData.find(
+      (loc) => loc.title === selectedLocation
+    );
+
+    if (matchedLocation && matchedLocation.id !== city) {
+      router.push(`/location/${matchedLocation.id}`);
+      return;
+    }
+
     setFilters(newFilters);
-  };
+  }, [city, locationsData, router]);
 
   // Show loading state
   if (loading) {
@@ -544,7 +570,7 @@ export default function LocationDetail() {
               <SearchFilter
                 onFilterChange={handleFilterChange}
                 showClearAll={true}
-                initialFilters={filters}
+                initialFilters={{ ...filters, location: location.title }}
                 showMobileFilters={false}
                 isLocationPage={true}
                 currentLocation={location.title}

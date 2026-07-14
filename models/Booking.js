@@ -18,6 +18,10 @@ const bookingSchema = new mongoose.Schema({
   
   // Day Charter Fields
   duration: String,
+  season: {
+    type: String,
+    default: ''
+  },
   date: Date,
   time: String,
   

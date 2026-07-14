@@ -21,6 +21,14 @@ import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import BookingForm from './BookingForm';
 import CharterInquiryForm from './CharterInquiryForm';
+import {
+  getAvailableSeasons,
+  getDefaultSeason,
+  filterPricesBySeason,
+  hasSeasonPricing,
+  formatPriceDuration,
+  SEASON_LABELS,
+} from '@/lib/seasons';
 
 const CONTENT = {
   heading: {
@@ -54,7 +62,11 @@ const STYLES = {
   pricingNote: "text-base tracking-wider font-light",
   pricingSection: "grid grid-cols-1 lg:grid-cols-2 gap-6",
   pricingGrid: "grid grid-cols-1 md:grid-cols-2 gap-4",
-  priceBox: "bg-text-secondary border border-gray-300 rounded-lg lg:p-6 p-3 hover:shadow-md transition-shadowr",
+  seasonTabs: "flex flex-wrap gap-2 mb-4",
+  seasonTab: "px-4 py-2 text-sm md:text-base font-light tracking-wider rounded-lg border border-gray-300 cursor-pointer transition-all duration-200 bg-white text-gray-700 hover:border-[#c8a75c]",
+  seasonTabActive: "px-4 py-2 text-sm md:text-base font-light tracking-wider rounded-lg border-2 border-[#c8a75c] bg-[#c8a75c]/10 text-[#c8a75c] cursor-pointer transition-all duration-200",
+  seasonDates: "text-xs text-gray-500 tracking-wider mt-1 text-center",
+  priceBox: "bg-black border border-gray-300 rounded-lg lg:p-6 p-3 hover:shadow-md transition-shadow",
   priceContent: "flex flex-col items-center gap-1",
   priceAmount: "text-3xl font-bold text-white tracking-wider",
   rateInfo: "flex items-center gap-1 text-white text-lg tracking-wider",
@@ -116,6 +128,7 @@ export default function FeaturesSection({
   const [isTextExpanded, setIsTextExpanded] = useState(false);
   const [isTextFading, setIsTextFading] = useState(false);
   const [shareUrl, setShareUrl] = useState('');
+  const [selectedSeason, setSelectedSeason] = useState(null);
 
   // Check if prices are valid (not empty and at least one price has retail_cents > 0)
   const hasValidPrices = prices?.length > 0 && prices.some(price => 
@@ -125,6 +138,12 @@ export default function FeaturesSection({
   const hasBrochure = brochure && brochure.file_path;
   const hasBroker = broker && broker.broker_name;
   const hasBrokerImage = broker?.broker_image && broker.broker_image.trim();
+  const availableSeasons = getAvailableSeasons(prices);
+  const showSeasonTabs = hasSeasonPricing(prices);
+  const activeSeason = selectedSeason || getDefaultSeason(prices);
+  const displayedPrices = filterPricesBySeason(prices, activeSeason);
+  const activeSeasonDates =
+    displayedPrices.find((price) => price.season_dates)?.season_dates || "";
 
   const shareTitle = title || "Check out this amazing charter!";
 
@@ -134,6 +153,18 @@ export default function FeaturesSection({
       setShareUrl(window.location.href);
     }
   }, []);
+
+  // Keep selected season in sync with available price seasons
+  useEffect(() => {
+    const seasons = getAvailableSeasons(prices);
+    const defaultSeason = getDefaultSeason(prices);
+    setSelectedSeason((prev) => {
+      if (prev && seasons.some((season) => season.value === prev)) {
+        return prev;
+      }
+      return defaultSeason;
+    });
+  }, [prices]);
 
   const shareOptions = [
     {
@@ -271,7 +302,9 @@ export default function FeaturesSection({
 
   const bookingData = {
     location: charterLocation,
-    durations: charterDurations,
+    durations: displayedPrices.map((price) => formatPriceDuration(price)).filter(Boolean),
+    prices,
+    selectedSeason: activeSeason,
     maxPassengers: maxPassengers,
     yachtTitle: title
   };
@@ -430,10 +463,34 @@ export default function FeaturesSection({
           {hasPrices && (
             <div className={STYLES.pricingSection}>
               <div className="flex flex-col gap-6">
+                {showSeasonTabs && (
+                  <div>
+                    <div className={STYLES.seasonTabs}>
+                      {availableSeasons.map((season) => (
+                        <button
+                          key={season.value}
+                          type="button"
+                          className={
+                            activeSeason === season.value
+                              ? STYLES.seasonTabActive
+                              : STYLES.seasonTab
+                          }
+                          onClick={() => setSelectedSeason(season.value)}
+                        >
+                          {season.label}
+                        </button>
+                      ))}
+                    </div>
+                    {activeSeasonDates && (
+                      <p className={STYLES.seasonDates}>{activeSeasonDates}</p>
+                    )}
+                  </div>
+                )}
+
                 <div className={STYLES.pricingGrid}>
-                  {prices.map((price, index) => (
+                  {displayedPrices.map((price, index) => (
                     <div 
-                      key={`price-${price.id}-${price.retail_cents}-${index}`} 
+                      key={`price-${price.id || price.season || 'any'}-${price.retail_cents}-${index}`} 
                       className={STYLES.priceBox}
                     >
                       <div className={STYLES.priceContent}>
@@ -450,6 +507,12 @@ export default function FeaturesSection({
                     </div>
                   ))}
                 </div>
+
+                {displayedPrices.length === 0 && (
+                  <p className="text-sm text-gray-500 tracking-wider">
+                    No prices available for {SEASON_LABELS[activeSeason] || "this season"}.
+                  </p>
+                )}
 
                 <div className={STYLES.noteText}>
                   <span className={STYLES.noteLabel}>Note:</span>

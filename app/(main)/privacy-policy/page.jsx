@@ -176,7 +176,7 @@ You can exercise your rights by emailing privacy@halayachts.com.`,
 
 Hala Yachts
 • Email: privacy@halayachts.com
-• Phone: +1 847-845-0227
+• Phone: +1-847-845-0227
 • Headquarters: [Insert Address]`,
       icon: <FiMail className="w-5 h-5 md:w-6 md:h-6" />
     }
