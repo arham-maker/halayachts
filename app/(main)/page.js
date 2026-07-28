@@ -107,7 +107,14 @@ async function getYachts(limit = null) {
     }
 
     const allYachts = await response.json();
-    return typeof limit === "number" ? allYachts.slice(0, limit) : allYachts;
+    const sorted = [...allYachts].sort((a, b) => {
+      const aLen = Number(a.length);
+      const bLen = Number(b.length);
+      const aVal = Number.isFinite(aLen) ? aLen : Number.POSITIVE_INFINITY;
+      const bVal = Number.isFinite(bLen) ? bLen : Number.POSITIVE_INFINITY;
+      return aVal - bVal;
+    });
+    return typeof limit === "number" ? sorted.slice(0, limit) : sorted;
   } catch (error) {
     console.error("Error fetching yachts:", error);
     return [];

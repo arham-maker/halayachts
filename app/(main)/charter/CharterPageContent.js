@@ -335,7 +335,7 @@ function CharterPageContent() {
 
   // Filter logic - Improved with better matching
   const filteredYachts = useMemo(() => {
-    return yachtsData.filter((yacht) => {
+    const filtered = yachtsData.filter((yacht) => {
       // Location filter - Match by location title (yacht.location.city contains location title)
       if (filters.location !== "all") {
         const yachtLocation = yacht.location?.city?.toLowerCase().trim() || "";
@@ -424,6 +424,14 @@ function CharterPageContent() {
       }
 
       return true;
+    });
+
+    return [...filtered].sort((a, b) => {
+      const aLen = Number(a.length);
+      const bLen = Number(b.length);
+      const aVal = Number.isFinite(aLen) ? aLen : Number.POSITIVE_INFINITY;
+      const bVal = Number.isFinite(bLen) ? bLen : Number.POSITIVE_INFINITY;
+      return aVal - bVal;
     });
   }, [filters, yachtsData]);
 

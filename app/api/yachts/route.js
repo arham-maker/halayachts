@@ -44,6 +44,14 @@ export async function GET() {
     const db = connection.db || connection;
     
     const yachts = await db.collection('yachts').find({}).toArray();
+
+    yachts.sort((a, b) => {
+      const aLen = Number(a.length);
+      const bLen = Number(b.length);
+      const aVal = Number.isFinite(aLen) ? aLen : Number.POSITIVE_INFINITY;
+      const bVal = Number.isFinite(bLen) ? bLen : Number.POSITIVE_INFINITY;
+      return aVal - bVal;
+    });
     
     logger.log(`Fetched ${yachts.length} yachts`);
     
