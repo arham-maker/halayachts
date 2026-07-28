@@ -17,7 +17,6 @@ function resolveImageSrc(image) {
     if (candidate.startsWith('//')) return `https:${candidate}`;
     if (candidate.startsWith('/')) return candidate;
 
-    // Ensure relative paths always have a leading slash
     return `/${candidate.replace(/^\/+/, '')}`;
 }
 
@@ -28,43 +27,44 @@ export default function YachtCard({ yacht }) {
     const imageSrc = resolveImageSrc(image);
 
     return (
-        <Link href={`/charter/${slug}`} className="block group relative">
-            <div className="bg-white rounded-2xl shadow-lg border border-gray-200 overflow-hidden hover:shadow-xl transition-shadow">
-                <div className="h-64 relative">
-                    <Image
-                        src={imageSrc}
-                        alt={title}
-                        fill
-                        sizes="(max-width: 768px) 100vw, 33vw"
-                        className="object-none transition-transform"
-                    />
-                </div>
+        <Link
+            href={`/charter/${slug}`}
+            className="block group relative bg-white rounded-2xl shadow-lg border border-gray-200 overflow-hidden hover:shadow-xl transition-shadow"
+        >
+            <div className="relative h-64 overflow-hidden">
+                <Image
+                    src={imageSrc}
+                    alt={title}
+                    fill
+                    sizes="(max-width: 768px) 100vw, 33vw"
+                    className="object-cover"
+                />
+            </div>
 
-                <div className="p-2 absolute bottom-2.5 z-10 w-[97%] bg-white left-1/2 -translate-x-1/2 rounded-lg shadow-lg">
-                    <div className="flex justify-between items-center mb-1">
-                        <h3 className="text-base sm:text-lg font-semibold flex-1 line-clamp-1">
-                            {title}
-                        </h3>
-                        {displayPrice && (
-                            <span className="text-base text-secondary sm:text-lg font-semibold ">
-                                {displayPrice}
-                            </span>
-                        )}
-                    </div>
-                    <div className="border-t border-gray-200  my-1"></div>
-                    <div className="flex justify-between items-center text-sm text-gray-600">
-                        {location?.city && (
-                            <div className="flex items-center flex-1 ">
-                                <CiLocationOn className="w-4 h-4 mr-1" />
-                                <span className="truncate text-wider">{location.city}</span>
-                            </div>
-                        )}
-                        {price && (
-                            <span className="whitespace-nowrap  ">
-                                Per {price.charter_hours} {price.charter_hours_label}
-                            </span>
-                        )}
-                    </div>
+            <div className="p-2 absolute bottom-2.5 z-10 w-[97%] bg-white left-1/2 -translate-x-1/2 rounded-lg shadow-lg">
+                <div className="flex justify-between items-center mb-1">
+                    <h3 className="text-base sm:text-lg font-semibold flex-1 line-clamp-1">
+                        {title}
+                    </h3>
+                    {displayPrice && (
+                        <span className="text-base text-secondary sm:text-lg font-semibold">
+                            {displayPrice}
+                        </span>
+                    )}
+                </div>
+                <div className="border-t border-gray-200 my-1"></div>
+                <div className="flex justify-between items-center text-sm text-gray-600">
+                    {location?.city && (
+                        <div className="flex items-center flex-1 min-w-0">
+                            <CiLocationOn className="w-4 h-4 mr-1 shrink-0" />
+                            <span className="truncate tracking-wider">{location.city}</span>
+                        </div>
+                    )}
+                    {price && (
+                        <span className="whitespace-nowrap">
+                            Per {price.charter_hours} {price.charter_hours_label}
+                        </span>
+                    )}
                 </div>
             </div>
         </Link>

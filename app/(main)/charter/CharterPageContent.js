@@ -515,7 +515,7 @@ function CharterPageContent() {
         backgroundImage="/images/charter_banner.png"
       />
 
-      <section ref={yachtGridRef} className="lg:py-24 py-8">
+      <section ref={yachtGridRef} className="lg:py-24 py-8 bg-white">
         <div className="max-w-7xl mx-auto px-5 flex flex-col gap-10">
           <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6">
             <div className="flex flex-col gap-5 flex-1">
