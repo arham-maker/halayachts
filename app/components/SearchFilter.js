@@ -27,8 +27,91 @@ const DROPDOWN_STYLES = {
     "w-full px-4 py-2 text-left hover:bg-gray-50 transition-colors duration-150 flex items-center justify-between",
   selectedOption: "bg-text-secondary-50 text-black",
   normalOption: "text-base leading-relaxed tracking-wider",
+  cityOption: "text-base leading-relaxed tracking-wider text-black",
+  groupHeader:
+    "px-4 py-2 text-sm font-semibold uppercase tracking-wider text-gray-500 bg-gray-50 sticky top-0",
   clearButton:
     "text-base leading-relaxed tracking-wider w-full text-red-600 hover:text-red-700 py-1 flex items-center justify-center gap-1",
+};
+
+const US_STATES = new Set([
+  "alabama", "alaska", "arizona", "arkansas", "california", "colorado",
+  "connecticut", "delaware", "florida", "georgia", "hawaii", "idaho",
+  "illinois", "indiana", "iowa", "kansas", "kentucky", "louisiana",
+  "maine", "maryland", "massachusetts", "michigan", "minnesota",
+  "mississippi", "missouri", "montana", "nebraska", "nevada",
+  "new hampshire", "new jersey", "new mexico", "new york",
+  "north carolina", "north dakota", "ohio", "oklahoma", "oregon",
+  "pennsylvania", "rhode island", "south carolina", "south dakota",
+  "tennessee", "texas", "utah", "vermont", "virginia", "washington",
+  "west virginia", "wisconsin", "wyoming", "district of columbia",
+  "usa", "u.s.a.", "u.s.", "us", "united states", "united states of america",
+]);
+
+const getRegionFromTitle = (title = "") => {
+  const parts = title.split(",").map((part) => part.trim()).filter(Boolean);
+  if (parts.length < 2) return { city: title.trim(), region: "Other" };
+  return {
+    city: parts.slice(0, -1).join(", "),
+    region: parts[parts.length - 1],
+  };
+};
+
+const isUsRegion = (region = "") => US_STATES.has(region.toLowerCase().trim());
+
+const buildGroupedLocationOptions = (locations = []) => {
+  const groups = new Map();
+
+  locations.forEach((loc) => {
+    const title = loc.title?.trim();
+    if (!title) return;
+
+    const { city, region } = getRegionFromTitle(title);
+    if (!groups.has(region)) {
+      groups.set(region, []);
+    }
+    groups.get(region).push({
+      value: title,
+      label: city || title,
+      fullLabel: title,
+      region,
+    });
+  });
+
+  const usRegions = [];
+  const otherRegions = [];
+
+  Array.from(groups.keys()).forEach((region) => {
+    if (isUsRegion(region)) {
+      usRegions.push(region);
+    } else {
+      otherRegions.push(region);
+    }
+  });
+
+  usRegions.sort((a, b) => a.localeCompare(b));
+  otherRegions.sort((a, b) => {
+    if (a === "Other") return 1;
+    if (b === "Other") return -1;
+    return a.localeCompare(b);
+  });
+
+  const options = [{ value: "all", label: "All Locations" }];
+
+  [...usRegions, ...otherRegions].forEach((region) => {
+    const regionLocations = groups
+      .get(region)
+      .sort((a, b) => a.label.localeCompare(b.label));
+
+    options.push({
+      value: `header-${region}`,
+      label: region,
+      isHeader: true,
+    });
+    options.push(...regionLocations);
+  });
+
+  return options;
 };
 
 const FILTER_CONTAINER_STYLES = {
@@ -127,13 +210,41 @@ const FilterDropdown = ({
 }) => {
   const [searchTerm, setSearchTerm] = useState("");
 
-  const filteredOptions = isSearchable
-    ? options.filter((option) =>
-        option.label.toLowerCase().includes(searchTerm.toLowerCase())
-      )
-    : options;
+  const filteredOptions = (() => {
+    if (!isSearchable || !searchTerm.trim()) return options;
 
-  const handleSelect = (optionValue) => {
+    const term = searchTerm.toLowerCase();
+    const result = [];
+    let pendingHeader = null;
+
+    options.forEach((option) => {
+      if (option.isHeader) {
+        pendingHeader = option;
+        return;
+      }
+
+      const matches =
+        option.label.toLowerCase().includes(term) ||
+        option.fullLabel?.toLowerCase().includes(term) ||
+        option.region?.toLowerCase().includes(term);
+
+      if (matches) {
+        if (pendingHeader) {
+          result.push(pendingHeader);
+          pendingHeader = null;
+        }
+        result.push(option);
+      }
+    });
+
+    return result;
+  })();
+
+  const handleSelect = (option) => {
+    if (option.isHeader) return;
+
+    const optionValue = option.value;
+
     if (isMultiSelect) {
       const currentValues = Array.isArray(value) ? value : [];
       const newValues = currentValues.includes(optionValue)
@@ -154,7 +265,8 @@ const FilterDropdown = ({
       if (value.includes("all")) return "All Amenities";
       return `${value.length} selected`;
     }
-    return options.find((opt) => opt.value === value)?.label || label;
+    const selected = options.find((opt) => !opt.isHeader && opt.value === value);
+    return selected?.fullLabel || selected?.label || label;
   };
 
   const clearSelection = () => {
@@ -211,28 +323,39 @@ const FilterDropdown = ({
               isMobile ? "max-h-32" : ""
             }`}
           >
-            {filteredOptions.map((option) => (
-              <button
-                key={option.value}
-                onClick={() => handleSelect(option.value)}
-                className={`${DROPDOWN_STYLES.option} ${
-                  (
-                    isMultiSelect
-                      ? Array.isArray(value) && value.includes(option.value)
-                      : value === option.value
-                  )
-                    ? DROPDOWN_STYLES.selectedOption
-                    : DROPDOWN_STYLES.normalOption
-                }`}
-              >
-                <span className="truncate">{option.label}</span>
-                {(isMultiSelect
-                  ? Array.isArray(value) && value.includes(option.value)
-                  : value === option.value) && (
-                  <FiCheck className="w-4 h-4 flex-shrink-0" />
-                )}
-              </button>
-            ))}
+            {filteredOptions.map((option) =>
+              option.isHeader ? (
+                <div
+                  key={option.value}
+                  className={DROPDOWN_STYLES.groupHeader}
+                >
+                  {option.label}
+                </div>
+              ) : (
+                <button
+                  key={option.value}
+                  onClick={() => handleSelect(option)}
+                  className={`${DROPDOWN_STYLES.option} ${
+                    (
+                      isMultiSelect
+                        ? Array.isArray(value) && value.includes(option.value)
+                        : value === option.value
+                    )
+                      ? DROPDOWN_STYLES.selectedOption
+                      : option.region
+                        ? DROPDOWN_STYLES.cityOption
+                        : DROPDOWN_STYLES.normalOption
+                  }`}
+                >
+                  <span className="truncate">{option.label}</span>
+                  {(isMultiSelect
+                    ? Array.isArray(value) && value.includes(option.value)
+                    : value === option.value) && (
+                    <FiCheck className="w-4 h-4 flex-shrink-0" />
+                  )}
+                </button>
+              )
+            )}
           </div>
 
           {isMultiSelect && Array.isArray(value) && value.length > 0 && (
@@ -423,25 +546,13 @@ const SearchFilter = ({
     (value) => value !== "all" && (!Array.isArray(value) || value.length > 0)
   ).length;
 
-  // Build location options from database locations
+  // Build location options 
   const getLocationOptions = () => {
-    // Always include "All Locations" as first option
-    const locationOptions = [{ value: "all", label: "All Locations" }];
-    
-    // Add locations from database if they exist
-    if (locations && locations.length > 0) {
-      // Transform database locations to expected format
-      // API returns: { id, _id, title, image }
-      // Use title as value because yacht.location.city contains the location title
-      const transformedLocations = locations.map(loc => ({
-        value: loc.title, // Use title instead of id to match yacht.location.city
-        label: loc.title
-      }));
-      
-      locationOptions.push(...transformedLocations);
+    if (!locations || locations.length === 0) {
+      return [{ value: "all", label: "All Locations" }];
     }
-    
-    return locationOptions;
+
+    return buildGroupedLocationOptions(locations);
   };
 
   const locationOptionsToUse = getLocationOptions();
